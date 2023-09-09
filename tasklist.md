@@ -15,11 +15,12 @@
   - [ ] Popup Modal
     - [ ] Loading
     - [ ] Btn Based Modal
+  - [ ] Btn Panel Item
 
-- [ ] Search Location
+- [x] Search Location
   `https://geocode.maps.co/search?q={address}`
   - [x] Search UI
-  - [ ] Search API
+  - [x] Search API
 
 - [ ] Google Map API
   - [x] Google Map Panel

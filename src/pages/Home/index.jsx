@@ -10,86 +10,9 @@ import "./index.css";
 
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import { fetchGeoCode } from "@api";
-
-// #region Hooks
-const useScrollPosition = () => {
-	const [scrollPosition, setScrollPosition] = useState(0);
-
-	useEffect(() => {
-		const updatePosition = () => setScrollPosition(window.scrollY);
-
-		window.addEventListener("scroll", updatePosition);
-
-		return () => window.removeEventListener("scroll", updatePosition);
-	}, []);
-
-	return scrollPosition;
-};
-// #endregion
-
-// #region Components
-function ScrollFabBtn(props) {
-	const screenPos = useScrollPosition();
-
-	const { scrollHeight } = document.body;
-
-	console.log(screenPos, scrollHeight * 0.5);
-
-	// #region Helper
-	const scrollToBottom = () => {
-		window.scrollTo(0, scrollHeight);
-	};
-
-	const scrollToTop = () => {
-		window.scrollTo({ top: 0, behavior: "smooth" });
-	};
-	// #endregion
-
-	const flag = screenPos < scrollHeight * 0.5;
-
-	return (
-		<div key={flag}
-			style={{
-				position: "fixed",
-				zIndex: 5,
-				bottom: 10,
-				right: 10,
-			}}
-		>
-			{flag ? (
-				<div
-					onClick={scrollToBottom}
-					className={"btn btn-warning"}
-					style={{
-						width: 40,
-						height: 40,
-						cursor: "pointer",
-						borderRadius: 20,
-					}}
-				>
-					<i class="fa-solid fa-down-long"></i>
-				</div>
-			) : (
-				<div
-					onClick={scrollToTop}
-					className={"btn btn-warning"}
-					style={{
-						width: 40,
-						height: 40,
-						cursor: "pointer",
-						borderRadius: 20,
-					}}
-				>
-					<i class="fa-solid fa-up-long"></i>
-				</div>
-			)}
-		</div>
-	);
-}
-// #endregion
+import { ScrollFabBtn } from "@components";
 
 // #region Maps
-
 function Search(props) {
 	// #region Props
 	const { searchQuery = () => {} } = props;
@@ -296,9 +219,17 @@ function ControlPane(props) {
 							backgroundColor: "#FFF",
 							padding: 5,
 							borderRadius: 8,
+							padding: 10,
 						}}
 					>
-						Test
+						<div
+							style={{
+								fontWeight: "Bold",
+								fontSize: 24,
+							}}
+						>
+							Start Date
+						</div>
 					</div>
 					<div
 						className="w-100 h-100"
@@ -310,15 +241,15 @@ function ControlPane(props) {
 					>
 						Test
 					</div>
-					<div
-						className="w-100 h-100"
-						style={{
-							backgroundColor: "#FFF",
-							padding: 5,
-							borderRadius: 8,
-						}}
-					>
-						Test
+					<div className="btn btn-danger w-100 h-100 g_center fs-2 fw-bold">
+						<div
+							style={{
+								fontWeight: "Bold",
+								fontSize: 24,
+							}}
+						>
+							Set Passengers
+						</div>
 					</div>
 					<div className="btn btn-warning w-100 h-100 g_center fs-2 fw-bold">
 						Help
