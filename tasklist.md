@@ -1,11 +1,11 @@
 ## Task List
 
-- [ ] Ui Design
-  - [ ] Simulation Pane
+- [x] Ui Design
+  - [x] Simulation Pane
     - [x] Control Panel
-    - [ ] Google Map Panel
-  - [ ] Result Pane
+    - [x] Google Map Panel
+  - [x] Result Pane
     - [x] Tab View
 
-- [ ] Google Map API
-  - [ ] Bus Animation
+- [x] Google Map API
+- [ ] Bus Animation

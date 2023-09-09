@@ -1,8 +1,41 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
 import { Logger, Utility } from "@utility";
 
 import { Link } from "react-router-dom";
+
+import { googleApiKey } from "@config";
+
+import "./index.css";
+
+// #region Maps
+import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
+
+const Map = () => {
+	const { isLoaded } = useLoadScript({ googleMapsApiKey: googleApiKey });
+
+	const center = useMemo(() => ({ lat: 18.52043, lng: 73.856743 }), []);
+
+	return (
+		<div className="App">
+			{!isLoaded ? (
+				<div className="h2">Loading...</div>
+			) : (
+				<GoogleMap
+					mapContainerStyle={{
+						width: 500,
+						height: 500,
+					}}
+					center={center}
+					zoom={10}
+				>
+					<Marker position={{ lat: 18.52043, lng: 73.856743 }} />
+				</GoogleMap>
+			)}
+		</div>
+	);
+};
+// #endregion
 
 // #region Control
 function BasedLogo(props) {
@@ -71,9 +104,9 @@ function Logo(props) {
 		},
 		wrapperStyle: {
 			display: "flex",
-			flexGrow: 1,
 			alignItems: "center",
 			justifyContent: "center",
+            // backgroundColor: "#00F"
 		},
 		wordDivStyle: {
 			// backgroundColor: "#F00",
@@ -86,7 +119,6 @@ function Logo(props) {
 	return (
 		<div
 			style={{
-				// backgroundColor: "#00F",
 				...styles.wrapperStyle,
 				...styles.textStyle,
 				height: 100,
@@ -106,13 +138,26 @@ function ControlPane(props) {
 	return (
 		<div
 			style={{
-				flex: 1,
+				display: "flex",
 				backgroundColor: "#000",
 				height: "100vh",
+                flexDirection: "column"
 			}}
 		>
 			{/* Logo */}
 			<Logo />
+
+			{/* Map */}
+            <div style={{
+                flex: 1,
+                backgroundColor: "#F00",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+            }}>
+                <Map />
+
+            </div>
 		</div>
 	);
 }
@@ -144,89 +189,85 @@ function ResultHeader(props) {
 }
 
 function ResultTabHeader(props) {
-	
-    // #region Props
-    const { ind, setInd = () => {} } = props;
-    // #endregion
+	// #region Props
+	const { ind, setInd = () => {} } = props;
+	// #endregion
 
-    // #region Helper
-    const togglePane = (val) => setInd(val);
-    // #endregion
+	// #region Helper
+	const togglePane = (val) => setInd(val);
+	// #endregion
 
-    const init = {
-        tabLs: ["Best", "Medium", "Worst"]
-    }
+	const init = {
+		tabLs: ["Best", "Medium", "Worst"],
+	};
 
-    // #region Render
-    const renderTab = (item, jnd) => {
+	// #region Render
+	const renderTab = (item, jnd) => {
+		const onSelect = () => togglePane(jnd);
 
-        const onSelect = () => togglePane(jnd);
+		const className = `nav-link ${ind == jnd ? "active" : ""}`;
 
-        const className = `nav-link ${ind == jnd ? "active" : ""}`
-
-        return (
-            <li className={"nav-item"}
+		return (
+			<li
+				className={"nav-item"}
 				onClick={onSelect}
-				style={{ cursor: "pointer", flex: 1 }}>
-				<div className={className} 
-                    style={{ display: "flex", justifyContent: "center" }}>
+				style={{ cursor: "pointer", flex: 1 }}
+			>
+				<div
+					className={className}
+					style={{ display: "flex", justifyContent: "center" }}
+				>
 					{item}
 				</div>
 			</li>
-        )
-    }
-    // #endregion
+		);
+	};
+	// #endregion
 
-	return (
-		<ul className={"nav nav-tabs"}>
-			{init.tabLs.map(renderTab)}
-		</ul>
-	);
+	return <ul className={"nav nav-tabs"}>{init.tabLs.map(renderTab)}</ul>;
 }
 
 function ResultTabPane(props) {
+	// #region Props
+	const { ind, setInd = () => {}, colors = [] } = props;
+	// #endregion
 
-    // #region Props
-    const { ind, setInd = () => {}, colors=[] } = props;
-    // #endregion
-
-    return (
-        <div style={{
-            backgroundColor: colors[ind],
-            flex: 1,
-        }}></div>
-    )
+	return (
+		<div
+			style={{
+				backgroundColor: colors[ind],
+				flex: 1,
+			}}
+		></div>
+	);
 }
 
 function ResultPane(props) {
-    
 	// #region UseState
 	const [tabPaneInd, setTabPaneInd] = useState(0);
 	// #endregion
 
-    const colors = ["#F00", "#0F0", "#00F"]
+	const colors = ["#F00", "#0F0", "#00F"];
 
 	return (
 		<div
 			style={{
 				// backgroundColor: "#F00",
-                display: "flex",
-                flexDirection: "column",
-                height: "100vh",
-			}}>
+				display: "flex",
+				flexDirection: "column",
+				height: "100vh",
+			}}
+		>
 			<ResultHeader />
 
 			{/* Tab Header */}
-            <ResultTabHeader 
-                ind={tabPaneInd}
-                setInd={setTabPaneInd} />
+			<ResultTabHeader ind={tabPaneInd} setInd={setTabPaneInd} />
 
-            <ResultTabPane
-                ind={tabPaneInd}
-                setInd={setTabPaneInd} 
-                colors={colors}
-            />
-            
+			<ResultTabPane
+				ind={tabPaneInd}
+				setInd={setTabPaneInd}
+				colors={colors}
+			/>
 		</div>
 	);
 }
