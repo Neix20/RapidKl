@@ -18,6 +18,7 @@
 
 - [ ] Search Location
   `https://geocode.maps.co/search?q={address}`
+  - [x] Search UI
   - [ ] Search API
 
 - [ ] Google Map API

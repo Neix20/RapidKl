@@ -6,95 +6,105 @@ import { Link } from "react-router-dom";
 
 import { googleApiKey, Images } from "@config";
 
-import "./index.css"
+import "./index.css";
 
 // #region Maps
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 
 function Search(props) {
-    return (
-        <div className={"w-100 h-100"} 
-            style={{ backgroundColor: "#FFF", borderRadius: 8 }}></div>
-    )
+	// #region Props
+	// #endregion
+
+	// #region UseState
+	const [query, setQuery] = useState("");
+	// #endregion
+
+	// #region Helper
+	const onChangeQuery = (e) => {
+		const { value } = e.target;
+		setQuery(value);
+	};
+
+	const toggleClick = () => {
+		console.log(query);
+	};
+
+	const handleKeyDown = (e) => {
+		const { key } = e;
+		if (key === "Enter") {
+			toggleClick();
+		}
+	};
+	// #endregion
+
+	return (
+		<div
+			className={"w-100 h-100"}
+			style={{
+				display: "flex",
+				backgroundColor: "#FFF",
+				borderRadius: 8,
+			}}
+		>
+			<input
+				className={"w-100 h-100"}
+				value={query}
+				onChange={onChangeQuery}
+				onKeyDown={handleKeyDown}
+				name="query"
+				type="text"
+				x-webkit-speech="true"
+				autoComplete="off"
+				placeholder=" Search ..."
+				style={{
+					borderWidth: 0,
+					borderRadius: 8,
+				}}
+			/>
+
+			{/* Search */}
+			<div
+				className={"g_center"}
+				onClick={toggleClick}
+				style={{
+					width: 40,
+					backgroundColor: "#FFF",
+					borderRadius: 8,
+					cursor: "pointer",
+				}}
+			>
+				<i class="fa-solid fa-magnifying-glass"></i>
+			</div>
+		</div>
+	);
 }
 
 function Map(props) {
-    const coor = {
-        lat: 3.140853,
-        lng: 101.693207
-    }
+	// #region Props
+	const { iCoord, setICoord = () => {} } = props;
+	// #endregion
 
 	const { isLoaded } = useLoadScript({ googleMapsApiKey: googleApiKey });
 
-	const center = useMemo(() => (coor), []);
+	const center = useMemo(() => iCoord, []);
 
 	if (!isLoaded) {
 		return <div className="h2">Loading...</div>;
 	}
 
 	return (
-		<GoogleMap 
-            mapContainerClassName={"w-100 h-100"}
+		<GoogleMap
+			mapContainerClassName={"w-100 h-100"}
 			center={center}
 			zoom={10}
 		>
-			<Marker position={coor} />
+			<Marker position={iCoord} />
 		</GoogleMap>
 	);
-};
+}
 // #endregion
 
 // #region Control
-function BasedLogo(props) {
-	const styles = {
-		textParentStyle: {
-			fontWeight: "bold",
-			fontSize: 64,
-			color: "#FFF",
-		},
-		textChildStyle: {
-			position: "relative",
-			fontWeight: "normal",
-			fontSize: 24,
-			bottom: 15,
-			display: "none",
-		},
-		divParentStyle: {
-			// backgroundColor: "#F00",
-			display: "flex",
-			alignItems: "flex-end",
-			height: 100,
-		},
-	};
-
-	return (
-		<div className={"g_center"}
-			style={{
-				// backgroundColor: "#00F",
-				...styles.textParentStyle,
-				height: 100,
-				columnGap: 48,
-			}}
-		>
-			<div style={styles.divParentStyle}>
-				W<div style={styles.textChildStyle}>o</div>
-			</div>
-			<div style={styles.divParentStyle}>
-				M<div style={styles.textChildStyle}>en</div>
-			</div>
-			<div style={styles.divParentStyle}>
-				Q<div style={styles.textChildStyle}>iang</div>
-			</div>
-			<div style={styles.divParentStyle}>
-				J<div style={styles.textChildStyle}>ian</div>
-			</div>
-			<div style={styles.divParentStyle}>
-				G<div style={styles.textChildStyle}>irls</div>
-			</div>
-		</div>
-	);
-}
-
 function Logo(props) {
 	const styles = {
 		textStyle: {
@@ -108,17 +118,17 @@ function Logo(props) {
 	};
 
 	return (
-		<div 
-            className={"g_center"}
+		<div
+			className={"g_center"}
 			style={{
 				...styles.textStyle,
 				minHeight: 40,
 				columnGap: 20,
 			}}
 		>
-            <div>WMQJG</div>
-            <div className={"fst-italic"}>RapidKL</div>
-            <div>Simulator</div>
+			<div>WMQJG</div>
+			<div className={"fst-italic"}>RapidKL</div>
+			<div>Simulator</div>
 			{/* <div style={styles.wordDivStyle}>W</div>
 			<div style={styles.wordDivStyle}>M</div>
 			<div style={styles.wordDivStyle}>Q</div>
@@ -129,6 +139,22 @@ function Logo(props) {
 }
 
 function ControlPane(props) {
+	// #region Init
+	const init = {
+		coord: {
+			lat: 3.140853,
+			lng: 101.693207,
+		},
+	};
+	// #endregion
+
+	// #region UseState
+	const [coords, setCoords] = useState(init.coord);
+	// #endregion
+
+	// #region Helper
+	// #endregion
+
 	return (
 		<div
 			style={{
@@ -142,12 +168,13 @@ function ControlPane(props) {
 			<Logo />
 
 			{/* Panel */}
-			<div className={"g_center"}
+			<div
+				className={"g_center"}
 				style={{
 					flex: 1,
 					padding: 20,
 					columnGap: 20,
-                    // backgroundImage: `url(${Images.bgKl})`,
+					// backgroundImage: `url(${Images.bgKl})`,
 				}}
 			>
 				{/* Control */}
@@ -155,35 +182,63 @@ function ControlPane(props) {
 					style={{
 						height: "100%",
 						width: "30%",
-                        display: "flex",
-                        flexDirection: "column",
-                        rowGap: 10,
+						display: "flex",
+						flexDirection: "column",
+						rowGap: 10,
 					}}
 				>
-                    <div className="w-100 h-100" 
-                        style={{ backgroundColor: "#FFF", padding: 5, borderRadius: 8 }}>Test</div>
-                    <div className="w-100 h-100" 
-                        style={{ backgroundColor: "#F00", padding: 5, borderRadius: 8 }}>Test</div>
-                    <div className="w-100 h-100" 
-                        style={{ backgroundColor: "#FFF", padding: 5, borderRadius: 8 }}>Test</div>
-                    <div className="btn btn-warning w-100 h-100 g_center fs-2 fw-bold">Help</div>
-                    <div className="btn btn-success w-100 h-100 g_center fs-2 fw-bold">Start</div>
-                </div>
-                {/* Map */}
-				<div className="w-100 h-100" 
-                    style={{ 
-                        display: "flex",
-                        flexDirection: "column",
-                        rowGap: 10,
-                        backgroundColor: "#000" 
-                    }} >
-                    <div style={{
-                        width: "100%",
-                        height: "10%",
-                    }}>
-                        <Search />
-                    </div>
-					<Map />
+					<div
+						className="w-100 h-100"
+						style={{
+							backgroundColor: "#FFF",
+							padding: 5,
+							borderRadius: 8,
+						}}
+					>
+						Test
+					</div>
+					<div
+						className="w-100 h-100"
+						style={{
+							backgroundColor: "#F00",
+							padding: 5,
+							borderRadius: 8,
+						}}
+					>
+						Test
+					</div>
+					<div
+						className="w-100 h-100"
+						style={{
+							backgroundColor: "#FFF",
+							padding: 5,
+							borderRadius: 8,
+						}}
+					>
+						Test
+					</div>
+					<div className="btn btn-warning w-100 h-100 g_center fs-2 fw-bold">
+						Help
+					</div>
+					<div className="btn btn-success w-100 h-100 g_center fs-2 fw-bold">
+						Start
+					</div>
+				</div>
+
+				{/* Map */}
+				<div
+					className="w-100 h-100"
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						rowGap: 10,
+						backgroundColor: "#000",
+					}}
+				>
+					<div style={{ width: "100%", height: "10%" }}>
+						<Search />
+					</div>
+					<Map iCoord={coords} setICoord={setCoords} />
 				</div>
 			</div>
 		</div>
@@ -194,8 +249,8 @@ function ControlPane(props) {
 // #region Result
 function ResultHeader(props) {
 	return (
-		<div 
-            className={"g_center"}
+		<div
+			className={"g_center"}
 			style={{
 				// backgroundColor: "#F00",
 				height: 100,
@@ -234,11 +289,15 @@ function ResultTabHeader(props) {
 		const className = `nav-link ${ind == jnd ? "active" : ""}`;
 
 		return (
-			<li className={"nav-item"}
+			<li
+				className={"nav-item"}
 				onClick={onSelect}
-				style={{ cursor: "pointer", flex: 1 }}>
-				<div className={className}
-					style={{ display: "flex", justifyContent: "center" }}>
+				style={{ cursor: "pointer", flex: 1 }}
+			>
+				<div
+					className={className}
+					style={{ display: "flex", justifyContent: "center" }}
+				>
 					{item}
 				</div>
 			</li>
