@@ -7,5 +7,22 @@
   - [x] Result Pane
     - [x] Tab View
 
-- [x] Google Map API
-- [ ] Bus Animation
+- [x] Change Background To Image
+
+- [ ] Components
+  - [ ] Btn To Go To Top
+  - [ ] Btn To Go To Bottom
+  - [ ] Popup Modal
+    - [ ] Loading
+    - [ ] Btn Based Modal
+
+- [ ] Search Location
+  `https://geocode.maps.co/search?q={address}`
+  - [ ] Search API
+
+- [ ] Google Map API
+  - [x] Google Map Panel
+  - [ ] Add Bus Stop, List out All Bus Station
+  - [ ] Plot Route
+    - [ ] Calculate Distance
+  - [ ] Bus Animation
