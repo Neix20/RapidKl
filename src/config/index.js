@@ -1,5 +1,10 @@
 import * as clsConst from "./const";
 
-export {
-    clsConst
-}
+import googleApi from "./auth/googleApi.json";
+
+const { apiKey: googleApiKey } = googleApi;
+
+export { 
+    clsConst,
+    googleApiKey,
+};

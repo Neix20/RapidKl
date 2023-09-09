@@ -1,27 +1,24 @@
 import { BrowserRouter } from "react-router-dom";
 import { RouteNavigator } from "@components";
 
-import Debug from "./../Debug";
-import DebugII from "./../Debug/debugII";
+import Debug from "@pages/Debug";
+import Home from "@pages/Home";
 
 const RouteItems = {
-	Debug: {
+	"Debug": {
 		path: "/Debug",
-		component: <Debug />,
+		element: <Debug />,
 		title: "Debug",
 	},
-	"DebugII": {
-		path: "/DebugII",
-		component: <DebugII />,
-		title: "DebugII"
+	"Home": {
+		path: "/Home",
+		element: <Home />,
+		title: "Home"
 	},
 };
 
 function Index() {
 	const defaultRoute = "Debug";
-
-	// const dispatch = useDispatch();
-	// dispatch(Actions.onChangeHistoryLs([]));
 
 	return (
 		<BrowserRouter>
