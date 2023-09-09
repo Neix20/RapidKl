@@ -11,11 +11,88 @@ import "./index.css";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import { fetchGeoCode } from "@api";
 
+// #region Hooks
+const useScrollPosition = () => {
+	const [scrollPosition, setScrollPosition] = useState(0);
+
+	useEffect(() => {
+		const updatePosition = () => setScrollPosition(window.scrollY);
+
+		window.addEventListener("scroll", updatePosition);
+
+		return () => window.removeEventListener("scroll", updatePosition);
+	}, []);
+
+	return scrollPosition;
+};
+// #endregion
+
+// #region Components
+function ScrollFabBtn(props) {
+	const screenPos = useScrollPosition();
+
+	const { scrollHeight } = document.body;
+
+	console.log(screenPos, scrollHeight * 0.5);
+
+	// #region Helper
+	const scrollToBottom = () => {
+		window.scrollTo(0, scrollHeight);
+	};
+
+	const scrollToTop = () => {
+		window.scrollTo({ top: 0, behavior: "smooth" });
+	};
+	// #endregion
+
+	const flag = screenPos < scrollHeight * 0.5;
+
+	return (
+		<div key={flag}
+			style={{
+				position: "fixed",
+				zIndex: 5,
+				bottom: 10,
+				right: 10,
+			}}
+		>
+			{flag ? (
+				<div
+					onClick={scrollToBottom}
+					className={"btn btn-warning"}
+					style={{
+						width: 40,
+						height: 40,
+						cursor: "pointer",
+						borderRadius: 20,
+					}}
+				>
+					<i class="fa-solid fa-down-long"></i>
+				</div>
+			) : (
+				<div
+					onClick={scrollToTop}
+					className={"btn btn-warning"}
+					style={{
+						width: 40,
+						height: 40,
+						cursor: "pointer",
+						borderRadius: 20,
+					}}
+				>
+					<i class="fa-solid fa-up-long"></i>
+				</div>
+			)}
+		</div>
+	);
+}
+// #endregion
+
 // #region Maps
 
 function Search(props) {
 	// #region Props
-    const {searchQuery = () => {} } = props;
+	const { searchQuery = () => {} } = props;
 	// #endregion
 
 	// #region UseState
@@ -28,10 +105,10 @@ function Search(props) {
 		setQuery(value);
 	};
 
-    const toggleSearchQuery = () => {
-        searchQuery(query);
-        setQuery("");
-    }
+	const toggleSearchQuery = () => {
+		searchQuery(query);
+		setQuery("");
+	};
 
 	const handleKeyDown = (e) => {
 		const { key } = e;
@@ -167,13 +244,13 @@ function ControlPane(props) {
 			.then((data) => {
 				let { lat, lon } = data;
 
-                lat = +lat;
-                lon = +lon;
+				lat = +lat;
+				lon = +lon;
 
-                setCoords({
-                    lat: lat,
-                    lng: lon
-                })
+				setCoords({
+					lat: lat,
+					lng: lon,
+				});
 			})
 			.catch((err) => {
 				console.log(`Error: ${err}`);
@@ -264,8 +341,11 @@ function ControlPane(props) {
 					<div style={{ width: "100%", height: "10%" }}>
 						<Search searchQuery={searchQuery} />
 					</div>
-					<Map key={JSON.stringify(coords)} 
-                        iCoord={coords} setICoord={setCoords} />
+					<Map
+						key={JSON.stringify(coords)}
+						iCoord={coords}
+						setICoord={setCoords}
+					/>
 				</div>
 			</div>
 		</div>
@@ -366,6 +446,7 @@ function ResultPane(props) {
 				height: "100vh",
 			}}
 		>
+			{/* Header */}
 			<ResultHeader />
 
 			{/* Tab Header */}
@@ -384,6 +465,8 @@ function ResultPane(props) {
 function Index(props) {
 	return (
 		<div>
+			{/* ScrollFabBtn */}
+			<ScrollFabBtn />
 			{/* Control Pane */}
 			<ControlPane />
 

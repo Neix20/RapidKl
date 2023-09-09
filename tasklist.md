@@ -9,9 +9,9 @@
 
 - [x] Change Background To Image
 
-- [ ] Components
-  - [ ] Btn To Go To Top
-  - [ ] Btn To Go To Bottom
+- [x] Components
+  - [x] Btn To Go To Top
+  - [x] Btn To Go To Bottom
   - [ ] Popup Modal
     - [ ] Loading
     - [ ] Btn Based Modal
