@@ -142,6 +142,44 @@ function Logo(props) {
 	);
 }
 
+import Modal from "react-modal";
+function ControlPanelBtnModal(props) {
+	// #region Props
+	// #endregion
+
+	// #region UseState
+	const [showModal, setShowModal] = useState(false);
+	// #endregion
+
+	// #region Helper
+	const toggleModal = () => setShowModal((val) => !val);
+	// #endregion
+
+	return (
+		<>
+			{showModal ? (
+				<Modal
+					isOpen={showModal}
+					onRequestClose={toggleModal}
+					style={{
+						backgroundColor: "#00F"
+					}}
+				>
+					<div style={{ width: 100, height: 100, backgroundColor: "#F00"}} />
+				</Modal>
+			) : (
+				<></>
+			)}
+			<div
+				onClick={toggleModal}
+				className="btn btn-primary w-100 h-100 g_center fs-2 fw-bold"
+			>
+				<div style={{ fontWeight: "Bold", fontSize: 24 }}>Test Btn</div>
+			</div>
+		</>
+	);
+}
+
 function ControlPane(props) {
 	// #region Init
 	const init = {
@@ -219,7 +257,6 @@ function ControlPane(props) {
 							backgroundColor: "#FFF",
 							padding: 5,
 							borderRadius: 8,
-							padding: 10,
 						}}
 					>
 						<div
@@ -231,7 +268,7 @@ function ControlPane(props) {
 							Start Date
 						</div>
 					</div>
-					<div
+					{/* <div
 						className="w-100 h-100"
 						style={{
 							backgroundColor: "#F00",
@@ -250,13 +287,15 @@ function ControlPane(props) {
 						>
 							Set Passengers
 						</div>
-					</div>
+					</div> */}
 					<div className="btn btn-warning w-100 h-100 g_center fs-2 fw-bold">
 						Help
 					</div>
 					<div className="btn btn-success w-100 h-100 g_center fs-2 fw-bold">
 						Start
 					</div>
+
+					<ControlPanelBtnModal />
 				</div>
 
 				{/* Map */}
@@ -398,6 +437,7 @@ function Index(props) {
 		<div>
 			{/* ScrollFabBtn */}
 			<ScrollFabBtn />
+
 			{/* Control Pane */}
 			<ControlPane />
 

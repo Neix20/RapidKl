@@ -14,8 +14,8 @@
   - [x] Btn To Go To Bottom
   - [ ] Popup Modal
     - [ ] Loading
-    - [ ] Btn Based Modal
-  - [ ] Btn Panel Item
+    - [x] Btn Based Modal
+  - [x] Btn Panel Item
 
 - [x] Search Location
   `https://geocode.maps.co/search?q={address}`
