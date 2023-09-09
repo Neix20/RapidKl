@@ -10,4 +10,23 @@ function genServerUrl(action) {
 	return `${SERVER_URL}/${action}`;
 }
 
-export { genLogUrl, genServerUrl };
+function requestObj(obj) {
+	return obj;
+}
+
+function genFetchUrl(url, param = {}) {
+    let res = url;
+
+    if (Object.keys(param).length > 0) {
+        res += "?";
+
+        for (let key in param) {
+            let val = param[key];
+            res += `${key}=${val}`;
+        }
+    }
+
+    return res;
+}
+
+export { genLogUrl, genServerUrl, requestObj, genFetchUrl };
