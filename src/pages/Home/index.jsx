@@ -8,11 +8,14 @@ import { googleApiKey, Images } from "@config";
 
 import "./index.css";
 
-// #region Maps
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
+import { fetchGeoCode } from "@api";
+
+// #region Maps
 
 function Search(props) {
 	// #region Props
+    const {searchQuery = () => {} } = props;
 	// #endregion
 
 	// #region UseState
@@ -25,14 +28,15 @@ function Search(props) {
 		setQuery(value);
 	};
 
-	const toggleClick = () => {
-		console.log(query);
-	};
+    const toggleSearchQuery = () => {
+        searchQuery(query);
+        setQuery("");
+    }
 
 	const handleKeyDown = (e) => {
 		const { key } = e;
 		if (key === "Enter") {
-			toggleClick();
+			toggleSearchQuery();
 		}
 	};
 	// #endregion
@@ -65,7 +69,7 @@ function Search(props) {
 			{/* Search */}
 			<div
 				className={"g_center"}
-				onClick={toggleClick}
+				onClick={toggleSearchQuery}
 				style={{
 					width: 40,
 					backgroundColor: "#FFF",
@@ -96,7 +100,7 @@ function Map(props) {
 		<GoogleMap
 			mapContainerClassName={"w-100 h-100"}
 			center={center}
-			zoom={10}
+			zoom={15}
 		>
 			<Marker position={iCoord} />
 		</GoogleMap>
@@ -153,6 +157,28 @@ function ControlPane(props) {
 	// #endregion
 
 	// #region Helper
+	const searchQuery = (val) => {
+		fetchGeoCode({
+			param: {
+				q: val,
+			},
+			onSetLoading: () => {},
+		})
+			.then((data) => {
+				let { lat, lon } = data;
+
+                lat = +lat;
+                lon = +lon;
+
+                setCoords({
+                    lat: lat,
+                    lng: lon
+                })
+			})
+			.catch((err) => {
+				console.log(`Error: ${err}`);
+			});
+	};
 	// #endregion
 
 	return (
@@ -236,9 +262,10 @@ function ControlPane(props) {
 					}}
 				>
 					<div style={{ width: "100%", height: "10%" }}>
-						<Search />
+						<Search searchQuery={searchQuery} />
 					</div>
-					<Map iCoord={coords} setICoord={setCoords} />
+					<Map key={JSON.stringify(coords)} 
+                        iCoord={coords} setICoord={setCoords} />
 				</div>
 			</div>
 		</div>

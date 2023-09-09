@@ -1,0 +1,21 @@
+[
+    {
+        "place_id": 107444493,
+        "licence": "Data © OpenStreetMap contributors, ODbL 1.0. https://osm.org/copyright",
+        "powered_by": "Map Maker: https://maps.co",
+        "osm_type": "way",
+        "osm_id": 24375110,
+        "boundingbox": [
+            "3.0757402",
+            "3.0764515",
+            "101.7109535",
+            "101.7117097"
+        ],
+        "lat": "3.07609695",
+        "lon": "101.71144675990703",
+        "display_name": "Bandar Tasik Selatan, Middle Ring Road 2, Bandar Tasik Selatan, Sungai Besi, Kuala Lumpur, 57100, Malaysia",
+        "class": "railway",
+        "type": "station",
+        "importance": 0.6992860936070888
+    }
+]

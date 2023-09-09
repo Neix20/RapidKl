@@ -4,21 +4,24 @@ import { Logger, Utility } from "@utility";
 
 import { Link } from "react-router-dom";
 
-import { useDispatch, useSelector } from "react-redux";
-import { Actions, Selectors } from "@redux";
+import {fetchGeoCode} from "@api";
 
 function Index(props) {
 
-	const dispatch = useDispatch();
-
-	// const deviceId = useSelector(Selectors.deviceIdSelect);
-
 	// #region UseEffect
 	useEffect(() => {
-		// console.log(deviceId);
-        Logger.info({
-            "Msg": "Running from Utility.js"
-        })
+		fetchGeoCode({
+			param: {
+				q: "Sungai Besi"
+			},
+			onSetLoading: () => {}
+		})
+		.then(data => {
+			console.log(data);
+		})
+		.catch(err => {
+			console.log(`Error: ${err}`);
+		})
 	}, []);
 	// #endregion
 

@@ -15,15 +15,11 @@ const Index = async (props) => {
         method: "GET"
     });
 
-    const data = await resp.json();
+    let data = await resp.json();
     onSetLoading(false);
 
-    if (data["ResponseCode"] === "00") {
-        // return data;
-    }
-    else {
-        console.log(`Home - GeoCode - Request - ${JSON.stringify(obj)}`);
-        console.log(`Home - GeoCode - Response - ${JSON.stringify(data)}`);
+    if (data.length > 0) {
+        data = data[0];
     }
 
     return data;
