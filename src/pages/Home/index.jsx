@@ -8,9 +8,12 @@ import { googleApiKey, Images } from "@config";
 
 import "./index.css";
 
-import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import { fetchGeoCode } from "@api";
 import { ScrollFabBtn } from "@components";
+
+import GoogleMapReact from "google-map-react";
+
+const Marker = ({ children }) => <div className={"g_center"} style={{ width: 40, height: 40, backgroundColor: "rgba(255, 0, 0, 0.25)" }}>{children}</div>;
 
 // #region Maps
 function Search(props) {
@@ -84,26 +87,53 @@ function Search(props) {
 }
 
 function Map(props) {
+
 	// #region Props
 	const { iCoord, setICoord = () => {} } = props;
 	// #endregion
 
-	const { isLoaded } = useLoadScript({ googleMapsApiKey: googleApiKey });
+	// #region UseState
+	const [refresh, setRefresh] = useState(false);
+	const [stationLs, setStationLs] = useState([]);
+	// #endregion
 
-	const center = useMemo(() => iCoord, []);
+	// #region Helper
+	const addStation = ({x, y, lat, lng, event}) => {
+		let arr = [...stationLs];
 
-	if (!isLoaded) {
-		return <div className="h2">Loading...</div>;
+		let obj = {
+			lat: lat,
+			lng: lng,
+			text: `Item ${arr.length}`
+		}
+
+		console.log(obj);
+
+		arr.push(obj);
+
+		setStationLs(arr);
 	}
 
+	const toggleRefresh = () => setRefresh(val => !val);
+	// #endregion
+
+	// #region Render
+	const renderMarker = ({lat, lng, text}, ind) => {
+		return (
+			<Marker key={ind} lat={lat} lng={lng}>{text}</Marker>
+		)
+	}
+	// #endregion
+
 	return (
-		<GoogleMap
-			mapContainerClassName={"w-100 h-100"}
-			center={center}
-			zoom={15}
+		<GoogleMapReact
+			bootstrapURLKeys={{ key: googleApiKey }}
+			defaultCenter={iCoord}
+			onClick={addStation}
+			defaultZoom={15}
 		>
-			<Marker position={iCoord} />
-		</GoogleMap>
+			{stationLs.map(renderMarker)}
+		</GoogleMapReact>
 	);
 }
 // #endregion
@@ -284,7 +314,6 @@ function ControlPane(props) {
 							rowGap: 10,
 						}}
 					>
-
 						<ControlPaneBtnModal
 							btnChild={
 								<div
@@ -297,9 +326,7 @@ function ControlPane(props) {
 							}
 							mdlChild={
 								<div className={"g_center"}>
-									<div className={"fs-2 fw-bold"}>
-										Buses
-									</div>
+									<div className={"fs-2 fw-bold"}>Buses</div>
 								</div>
 							}
 						/>
@@ -391,11 +418,13 @@ function ControlPane(props) {
 						<div style={{ width: "100%", height: "10%" }}>
 							<Search searchQuery={searchQuery} />
 						</div>
-						<Map
-							key={JSON.stringify(coords)}
-							iCoord={coords}
-							setICoord={setCoords}
-						/>
+						<div className={"w-100 h-100"}>
+							<Map
+								key={JSON.stringify(coords)}
+								iCoord={coords}
+								setICoord={setCoords}
+							/>
+						</div>
 					</div>
 				</div>
 			</div>
