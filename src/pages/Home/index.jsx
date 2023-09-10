@@ -163,7 +163,19 @@ function ControlPaneBtnModal(props) {
 				<Modal
 					isOpen={showModal}
 					onRequestClose={toggleModal}
-					style={{ backgroundColor: "#00F" }}
+					style={{
+						overlay: {
+							zIndex: 10,
+							backgroundColor: "rgba(255, 255, 255, 0.75)",
+						},
+						content: {
+							borderRadius: 8,
+							top: 10,
+							bottom: 10,
+							left: 10,
+							right: 10,
+						},
+					}}
 				>
 					{/* Close Btn */}
 					<div style={{ position: "absolute", top: 10, right: 10 }}>
@@ -236,7 +248,13 @@ function ControlPane(props) {
 			}}
 		>
 			{/* Background */}
-			<div style={{ flex: 1, background: `url(${Images.bgKl})` }}>
+			<div
+				style={{
+					flex: 1,
+					// background: `url(${Images.bgKl})`,
+					backgroundColor: "#000",
+				}}
+			>
 				<div
 					className={"w-100 h-100"}
 					style={{ backgroundColor: "rgba(255, 255, 255, 0.25)" }}
@@ -266,23 +284,7 @@ function ControlPane(props) {
 							rowGap: 10,
 						}}
 					>
-						<div
-							className={"w-100 h-100"}
-							style={{
-								backgroundColor: "#FFF",
-								borderRadius: 8,
-								padding: 10,
-							}}
-						>
-							<div style={{ fontWeight: "Bold", fontSize: 24 }}>
-								Start Date
-							</div>
 
-							<input
-								className={"form-control"}
-								placeholder={"E.g. 2023-08-18"}
-							/>
-						</div>
 						<ControlPaneBtnModal
 							btnChild={
 								<div
@@ -290,7 +292,7 @@ function ControlPane(props) {
 									style={{ columnGap: 10 }}
 								>
 									<div className={"fs-2 fw-bold"}>Buses</div>
-									<i class="fa-solid fa-bus fa-2xl"></i>
+									<i class="fa-solid fa-bus fa-lg"></i>
 								</div>
 							}
 							mdlChild={
@@ -304,7 +306,7 @@ function ControlPane(props) {
 						<ControlPaneBtnModal
 							btnChild={
 								<div
-									className="btn btn-danger w-100 h-100 g_center fs-2 fw-bold"
+									className="btn btn-danger w-100 h-100 g_center"
 									style={{ columnGap: 10 }}
 								>
 									<div className={"fs-2 fw-bold"}>
@@ -324,7 +326,7 @@ function ControlPane(props) {
 						<ControlPaneBtnModal
 							btnChild={
 								<div
-									className="btn btn-secondary w-100 h-100 g_center fs-2 fw-bold"
+									className="btn btn-success w-100 h-100 g_center"
 									style={{ columnGap: 10 }}
 								>
 									<div className={"fs-2 fw-bold"}>
@@ -333,7 +335,6 @@ function ControlPane(props) {
 									<i class="fa-solid fa-money-bill fa-lg"></i>
 								</div>
 							}
-
 							mdlChild={
 								<div className={"g_center"}>
 									<div className={"fs-2 fw-bold"}>
@@ -342,8 +343,35 @@ function ControlPane(props) {
 								</div>
 							}
 						/>
+						<ControlPaneBtnModal
+							btnChild={
+								<div
+									className="btn btn-warning w-100 h-100 g_center"
+									style={{ columnGap: 10 }}
+								>
+									<div className={"fs-2 fw-bold"}>
+										Station
+									</div>
+									<i class="fa-solid fa-gas-pump fa-lg"></i>
+								</div>
+							}
+							mdlChild={
+								<div className={"g_center"}>
+									<div className={"fs-2 fw-bold"}>
+										Station
+									</div>
+								</div>
+							}
+						/>
 						<div
-							className="btn btn-success w-100 h-50 g_center fs-2 fw-bold"
+							className="btn btn-danger w-100 h-100 g_center"
+							style={{ columnGap: 10 }}
+						>
+							<div className={"fs-2 fw-bold"}>Reset</div>
+							<i class="fa-solid fa-rotate-left fa-lg"></i>
+						</div>
+						<div
+							className="btn btn-success w-100 h-100 g_center"
 							style={{ columnGap: 10 }}
 						>
 							<div className={"fs-2 fw-bold"}>Start</div>
