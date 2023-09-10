@@ -143,8 +143,10 @@ function Logo(props) {
 }
 
 import Modal from "react-modal";
-function ControlPanelBtnModal(props) {
+
+function ControlPaneBtnModal(props) {
 	// #region Props
+	const { btnChild, mdlChild } = props;
 	// #endregion
 
 	// #region UseState
@@ -161,21 +163,26 @@ function ControlPanelBtnModal(props) {
 				<Modal
 					isOpen={showModal}
 					onRequestClose={toggleModal}
-					style={{
-						backgroundColor: "#00F"
-					}}
+					style={{ backgroundColor: "#00F" }}
 				>
-					<div style={{ width: 100, height: 100, backgroundColor: "#F00"}} />
+					{/* Close Btn */}
+					<div style={{ position: "absolute", top: 10, right: 10 }}>
+						<div
+							onClick={toggleModal}
+							className={"btn btn-danger g_center"}
+							style={{ width: 30, height: 30, borderRadius: 15 }}
+						>
+							<i class="fa-solid fa-xmark"></i>
+						</div>
+					</div>
+
+					{/* Modal Content */}
+					{mdlChild}
 				</Modal>
 			) : (
 				<></>
 			)}
-			<div
-				onClick={toggleModal}
-				className="btn btn-primary w-100 h-100 g_center fs-2 fw-bold"
-			>
-				<div style={{ fontWeight: "Bold", fontSize: 24 }}>Test Btn</div>
-			</div>
+			<div onClick={toggleModal}>{btnChild}</div>
 		</>
 	);
 }
@@ -228,94 +235,140 @@ function ControlPane(props) {
 				flexDirection: "column",
 			}}
 		>
-			{/* Logo */}
-			<Logo />
+			{/* Background */}
+			<div style={{ flex: 1, background: `url(${Images.bgKl})` }}>
+				<div
+					className={"w-100 h-100"}
+					style={{ backgroundColor: "rgba(255, 255, 255, 0.25)" }}
+				></div>
+			</div>
 
-			{/* Panel */}
+			{/* Items */}
 			<div
-				className={"g_center"}
-				style={{
-					flex: 1,
-					padding: 20,
-					columnGap: 20,
-					// backgroundImage: `url(${Images.bgKl})`,
-				}}
+				className={"g_overlay"}
+				style={{ display: "flex", flexDirection: "column" }}
 			>
-				{/* Control */}
+				{/* Logo */}
+				<Logo />
+
+				{/* Panel */}
 				<div
-					style={{
-						height: "100%",
-						width: "30%",
-						display: "flex",
-						flexDirection: "column",
-						rowGap: 10,
-					}}
+					className={"g_center"}
+					style={{ flex: 1, padding: 20, columnGap: 20 }}
 				>
+					{/* Control */}
 					<div
-						className="w-100 h-100"
 						style={{
-							backgroundColor: "#FFF",
-							padding: 5,
-							borderRadius: 8,
+							height: "100%",
+							width: "30%",
+							display: "flex",
+							flexDirection: "column",
+							rowGap: 10,
 						}}
 					>
 						<div
+							className={"w-100 h-100"}
 							style={{
-								fontWeight: "Bold",
-								fontSize: 24,
+								backgroundColor: "#FFF",
+								borderRadius: 8,
+								padding: 10,
 							}}
 						>
-							Start Date
+							<div style={{ fontWeight: "Bold", fontSize: 24 }}>
+								Start Date
+							</div>
+
+							<input
+								className={"form-control"}
+								placeholder={"E.g. 2023-08-18"}
+							/>
+						</div>
+						<ControlPaneBtnModal
+							btnChild={
+								<div
+									className="btn btn-primary w-100 h-100 g_center"
+									style={{ columnGap: 10 }}
+								>
+									<div className={"fs-2 fw-bold"}>Buses</div>
+									<i class="fa-solid fa-bus fa-2xl"></i>
+								</div>
+							}
+							mdlChild={
+								<div className={"g_center"}>
+									<div className={"fs-2 fw-bold"}>
+										Buses
+									</div>
+								</div>
+							}
+						/>
+						<ControlPaneBtnModal
+							btnChild={
+								<div
+									className="btn btn-danger w-100 h-100 g_center fs-2 fw-bold"
+									style={{ columnGap: 10 }}
+								>
+									<div className={"fs-2 fw-bold"}>
+										Passengers
+									</div>
+									<i class="fa-solid fa-user fa-lg"></i>
+								</div>
+							}
+							mdlChild={
+								<div className={"g_center"}>
+									<div className={"fs-2 fw-bold"}>
+										Passengers
+									</div>
+								</div>
+							}
+						/>
+						<ControlPaneBtnModal
+							btnChild={
+								<div
+									className="btn btn-secondary w-100 h-100 g_center fs-2 fw-bold"
+									style={{ columnGap: 10 }}
+								>
+									<div className={"fs-2 fw-bold"}>
+										Ticket Fares
+									</div>
+									<i class="fa-solid fa-money-bill fa-lg"></i>
+								</div>
+							}
+
+							mdlChild={
+								<div className={"g_center"}>
+									<div className={"fs-2 fw-bold"}>
+										Ticket Fares
+									</div>
+								</div>
+							}
+						/>
+						<div
+							className="btn btn-success w-100 h-50 g_center fs-2 fw-bold"
+							style={{ columnGap: 10 }}
+						>
+							<div className={"fs-2 fw-bold"}>Start</div>
+							<i class="fa-solid fa-flag-checkered fa-lg"></i>
 						</div>
 					</div>
-					{/* <div
-						className="w-100 h-100"
+
+					{/* Map */}
+					<div
+						className={"w-100 h-100"}
 						style={{
-							backgroundColor: "#F00",
-							padding: 5,
-							borderRadius: 8,
+							display: "flex",
+							flexDirection: "column",
+							rowGap: 10,
 						}}
 					>
-						Test
-					</div>
-					<div className="btn btn-danger w-100 h-100 g_center fs-2 fw-bold">
-						<div
-							style={{
-								fontWeight: "Bold",
-								fontSize: 24,
-							}}
-						>
-							Set Passengers
+						<div style={{ width: "100%", height: "10%" }}>
+							<Search searchQuery={searchQuery} />
 						</div>
-					</div> */}
-					<div className="btn btn-warning w-100 h-100 g_center fs-2 fw-bold">
-						Help
+						<Map
+							key={JSON.stringify(coords)}
+							iCoord={coords}
+							setICoord={setCoords}
+						/>
 					</div>
-					<div className="btn btn-success w-100 h-100 g_center fs-2 fw-bold">
-						Start
-					</div>
-
-					<ControlPanelBtnModal />
-				</div>
-
-				{/* Map */}
-				<div
-					className="w-100 h-100"
-					style={{
-						display: "flex",
-						flexDirection: "column",
-						rowGap: 10,
-						backgroundColor: "#000",
-					}}
-				>
-					<div style={{ width: "100%", height: "10%" }}>
-						<Search searchQuery={searchQuery} />
-					</div>
-					<Map
-						key={JSON.stringify(coords)}
-						iCoord={coords}
-						setICoord={setCoords}
-					/>
 				</div>
 			</div>
 		</div>

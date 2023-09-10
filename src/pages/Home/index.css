@@ -3,3 +3,11 @@
     justify-content: center;
     align-items: center;
 }
+
+.g_overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
