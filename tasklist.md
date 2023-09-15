@@ -1,30 +1,14 @@
 ## Task List
 
-- [x] Ui Design
-  - [x] Simulation Pane
-    - [x] Control Panel
-    - [x] Google Map Panel
-  - [x] Result Pane
-    - [x] Tab View
-
-- [x] Change Background To Image
-
-- [x] Components
-  - [x] Btn To Go To Top
-  - [x] Btn To Go To Bottom
-  - [ ] Popup Modal
-    - [ ] Loading
-    - [x] Btn Based Modal
-  - [x] Btn Panel Item
-
-- [x] Search Location
-  `https://geocode.maps.co/search?q={address}`
-  - [x] Search UI
-  - [x] Search API
-
-- [ ] Google Map API
-  - [x] Google Map Panel
-  - [ ] Add Bus Stop, List out All Bus Station
-  - [ ] Plot Route
-    - [ ] Calculate Distance
-  - [ ] Bus Animation
+- [ ] Google Maps API
+  - [x] Put Person Marker
+  - [ ] Put Station Marker
+    - [ ] Able to Update Station Name
+    - [ ] Plot Route Between 2 Station
+      - [ ] Get Distance
+      - [ ] Get Time
+  - [ ] Put Bus Marker
+    - [ ] Able to Update Bus Station
+    - [ ] Bus Station Controls for Crowd Control
+    - [ ] Bus Animation Between Station
+- [ ] Control Panel

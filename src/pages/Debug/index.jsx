@@ -4,6 +4,8 @@ import { Logger, Utility } from "@utility";
 
 import { fetchGeoCode } from "@api";
 
+import { WqLoadingModal } from "@components";
+
 function Index(props) {
 
 	// #region UseEffect
@@ -29,6 +31,7 @@ function Index(props) {
 
 	return (
 		<>
+			{/* <WqLoadingModal loading={true} /> */}
 			<div
 				style={{
 					backgroundColor: "#00F",

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useContext, createContext } from "react";
 
 import { Logger, Utility } from "@utility";
 
@@ -9,22 +9,25 @@ import { googleApiKey, Images } from "@config";
 import "@config/globalStyles.css";
 
 import { fetchGeoCode } from "@api";
-import { WqScrollFabBtn, WqModalBtn } from "@components";
+import { WqScrollFabBtn, WqModalBtn, WqLoading, WqLoadingModal } from "@components";
 
-import GoogleMapReact from "google-map-react";
+// import GoogleMapReact from "google-map-react";
+
+const Context = createContext();
+import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 
 // #region Maps
-const Marker = ({ children }) => {
-	return (
-		<div
-			className={"g_center"}
-			style={{
-				width: 40,
-				height: 40,
-				backgroundColor: "rgba(255, 0, 0, 0.25)"
-			}}>{children}</div>
-	)
-}
+// const Marker = ({ children }) => {
+// 	return (
+// 		<div
+// 			className={"g_center"}
+// 			style={{
+// 				width: 40,
+// 				height: 40,
+// 				backgroundColor: "rgba(255, 0, 0, 0.25)"
+// 			}}>{children}</div>
+// 	)
+// }
 
 function Search(props) {
 
@@ -102,54 +105,89 @@ function Search(props) {
 	);
 }
 
+// function Map(props) {
+
+// 	// #region Props
+// 	const { iCoord, setICoord = () => { } } = props;
+// 	// #endregion
+
+// 	// #region UseState
+// 	const [refresh, setRefresh] = useState(false);
+// 	const [stationLs, setStationLs] = useState([]);
+// 	// #endregion
+
+// 	// #region Helper
+// 	const addStation = ({ x, y, lat, lng, event }) => {
+// 		let arr = [...stationLs];
+
+// 		let obj = {
+// 			lat: lat,
+// 			lng: lng,
+// 			text: `Item ${arr.length}`
+// 		}
+
+// 		console.log(obj);
+
+// 		arr.push(obj);
+
+// 		setStationLs(arr);
+// 	}
+
+// 	const toggleRefresh = () => setRefresh(val => !val);
+// 	// #endregion
+
+// 	// #region Render
+// 	const renderMarker = ({ lat, lng, text }, ind) => {
+// 		return (
+// 			<Marker key={ind} lat={lat} lng={lng}>{text}</Marker>
+// 		)
+// 	}
+// 	// #endregion
+
+// 	return (
+// 		<GoogleMapReact
+// 			bootstrapURLKeys={{ key: googleApiKey }}
+// 			defaultCenter={iCoord}
+// 			onClick={addStation}
+// 			defaultZoom={15}
+// 		>
+// 			{stationLs.map(renderMarker)}
+// 		</GoogleMapReact>
+// 	);
+// }
+
 function Map(props) {
 
-	// #region Props
 	const { iCoord, setICoord = () => { } } = props;
-	// #endregion
 
-	// #region UseState
-	const [refresh, setRefresh] = useState(false);
-	const [stationLs, setStationLs] = useState([]);
-	// #endregion
+	const { isLoaded } = useLoadScript({ googleMapsApiKey: googleApiKey });
+	const center = useMemo(() => (iCoord), []);
 
-	// #region Helper
-	const addStation = ({ x, y, lat, lng, event }) => {
-		let arr = [...stationLs];
-
-		let obj = {
-			lat: lat,
-			lng: lng,
-			text: `Item ${arr.length}`
-		}
-
-		console.log(obj);
-
-		arr.push(obj);
-
-		setStationLs(arr);
+	const onClick = (e) => {
+		const {latLng } = e;
+		console.log(latLng.lat());
+		console.log(latLng.lng())
 	}
 
-	const toggleRefresh = () => setRefresh(val => !val);
-	// #endregion
-
-	// #region Render
-	const renderMarker = ({ lat, lng, text }, ind) => {
+	if (!isLoaded) {
 		return (
-			<Marker key={ind} lat={lat} lng={lng}>{text}</Marker>
+			<div className="w-100 h-100 g_center" style={{ backgroundColor: "#FFF" }}>
+			<WqLoading />
+		</div>
 		)
 	}
-	// #endregion
 
 	return (
-		<GoogleMapReact
-			bootstrapURLKeys={{ key: googleApiKey }}
-			defaultCenter={iCoord}
-			onClick={addStation}
-			defaultZoom={15}
+		<GoogleMap
+			mapContainerClassName="w-100 h-100"
+			center={center}
+			zoom={15}
+			onClick={onClick}
 		>
-			{stationLs.map(renderMarker)}
-		</GoogleMapReact>
+			<Marker 
+				visible={true}
+				position={iCoord} />
+		</GoogleMap>
 	);
 }
 // #endregion
@@ -189,6 +227,7 @@ function Logo(props) {
 }
 
 function ControlPane(props) {
+
 	// #region Init
 	const init = {
 		coord: {
@@ -198,17 +237,22 @@ function ControlPane(props) {
 	};
 	// #endregion
 
+	// #region Context
+	const [loading, setLoading] = useContext(Context);
+	// #endregion
+
 	// #region UseState
 	const [coords, setCoords] = useState(init.coord);
 	// #endregion
 
 	// #region Helper
 	const searchQuery = (val) => {
+		setLoading(true);
 		fetchGeoCode({
 			param: {
 				q: val,
 			},
-			onSetLoading: () => { },
+			onSetLoading: setLoading,
 		})
 			.then((data) => {
 				let { lat, lon } = data;
@@ -226,6 +270,7 @@ function ControlPane(props) {
 				}
 			})
 			.catch((err) => {
+				setLoading(false)
 				console.log(`Error: ${err}`);
 			});
 	};
@@ -296,27 +341,7 @@ function ControlPane(props) {
 						<WqModalBtn
 							btnChild={
 								<div
-									className="btn btn-danger w-100 h-100 g_center"
-									style={{ columnGap: 10 }}
-								>
-									<div className={"fs-2 fw-bold"}>
-										Passengers
-									</div>
-									<i className="fa-solid fa-user fa-lg"></i>
-								</div>
-							}
-							mdlChild={
-								<div className={"g_center"}>
-									<div className={"fs-2 fw-bold"}>
-										Passengers
-									</div>
-								</div>
-							}
-						/>
-						<WqModalBtn
-							btnChild={
-								<div
-									className="btn btn-success w-100 h-100 g_center"
+									className="btn btn-warning w-100 h-100 g_center"
 									style={{ columnGap: 10 }}
 								>
 									<div className={"fs-2 fw-bold"}>
@@ -336,7 +361,7 @@ function ControlPane(props) {
 						<WqModalBtn
 							btnChild={
 								<div
-									className="btn btn-warning w-100 h-100 g_center"
+									className="btn btn-info w-100 h-100 g_center"
 									style={{ columnGap: 10 }}
 								>
 									<div className={"fs-2 fw-bold"}>
@@ -459,6 +484,7 @@ function ResultTabHeader(props) {
 }
 
 function ResultTabPane(props) {
+
 	// #region Props
 	const { ind, setInd = () => { }, colors = [] } = props;
 	// #endregion
@@ -506,17 +532,37 @@ function ResultPane(props) {
 // #endregion
 
 function Index(props) {
+
+	// #region UseState
+	const [loading, setLoading] = useState(false);
+	const [resultFlag, setResultFlag] = useState(false);
+	// #endregion
+
+	// #region Helper
+	const toggleLoading = () => setLoading((val) => !val);
+	const toggleResultFlag = () => setResultFlag((val) => !val);
+	// #endregion
+
 	return (
-		<div>
-			{/* ScrollFabBtn */}
-			<WqScrollFabBtn />
+		<Context.Provider value={[loading, setLoading]}>
+			{/* Loading */}
+			<WqLoadingModal loading={loading} />
 
 			{/* Control Pane */}
 			<ControlPane />
 
-			{/* Result Pane */}
-			<ResultPane />
-		</div>
+			{/* Result Pane && ScrollFabBtn */}
+			{
+				(resultFlag) ? (
+					<>
+						<WqScrollFabBtn />
+						<ResultPane />
+					</>
+				) : (
+					<></>
+				)
+			}
+		</Context.Provider>
 	);
 }
 

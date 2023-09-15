@@ -17,7 +17,7 @@ const RouteItems = {
 	},
 	"Index": {
 		path: "/",
-		element: <Debug />,
+		element: <Home />,
 		title: "Home"
 	},
 };

@@ -40,6 +40,7 @@ function Index(props) {
 			{showModal ? (
 				<Modal
 					isOpen={showModal}
+					ariaHideApp={false}
 					onRequestClose={toggleModal}
 					style={{
 						...styles.modal,

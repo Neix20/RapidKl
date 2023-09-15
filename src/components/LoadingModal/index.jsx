@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 
 import { Logger, Utility } from "@utility";
-import { Animation } from "@config";
 
-import Lottie from "react-lottie";
 import Modal from "react-modal";
 
 import "@config/globalStyles.css";
+
+import Loading from "./Loading";
 
 function Index(props) {
 
@@ -28,27 +28,15 @@ function Index(props) {
 		}
 	}
 
-	const loadingOption = {
-		loop: true,
-		autoplay: true,
-		animationData: Animation.Loading,
-		rendererSettings: {
-			preserveAspectRatio: "xMidYMid slice"
-		}
-	};
-
 	return (
 		<Modal
 			isOpen={loading}
+			ariaHideApp={false}
 			style={styles.modal}
 		>
 			{/* Modal Content */}
 			<div className={"w-100 h-100 g_center"}>
-				<Lottie
-					options={loadingOption}
-					height={400}
-					width={400}
-				/>
+				<Loading />
 			</div>
 		</Modal>
 	)
