@@ -2,9 +2,7 @@ import React, { useState, useEffect } from "react";
 
 import { Logger, Utility } from "@utility";
 
-import { Link } from "react-router-dom";
-
-import {fetchGeoCode} from "@api";
+import { fetchGeoCode } from "@api";
 
 function Index(props) {
 
@@ -14,16 +12,20 @@ function Index(props) {
 			param: {
 				q: "Sungai Besi"
 			},
-			onSetLoading: () => {}
+			onSetLoading: () => { }
 		})
-		.then(data => {
-			console.log(data);
-		})
-		.catch(err => {
-			console.log(`Error: ${err}`);
-		})
+			.then(data => {
+				console.log(data);
+			})
+			.catch(err => {
+				console.log(`Error: ${err}`);
+			})
 	}, []);
 	// #endregion
+
+	const [loading, setLoading] = useState(false);
+
+	const toggleLoading = () => setLoading((val) => !val);
 
 	return (
 		<>
@@ -34,19 +36,10 @@ function Index(props) {
 					width: 100,
 				}}
 			></div>
-			<Link
-				to={`/DebugII`}
-				className={"btn btn-primary"}
-				style={{
-					width: 60,
-					borderRadius: 0,
-					display: "flex",
-					justifyContent: "center",
-					alignItems: "center",
-				}}
-			>
-				Click Me
-			</Link>
+			<div onClick={toggleLoading}
+				className="btn btn-primary">
+				<div className={"fs-2 fw-bold"}>Loading</div>
+			</div>
 		</>
 	);
 }

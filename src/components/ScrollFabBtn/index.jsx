@@ -18,7 +18,9 @@ function Index(props) {
 	};
 	// #endregion
 
-	const flag = screenPos < scrollHeight * 0.5;
+	let flag = screenPos < scrollHeight * 0.5;
+
+	flag = flag || scrollHeight == 0;
 
 	return (
 		<div key={flag}

@@ -6,19 +6,30 @@ import { Link } from "react-router-dom";
 
 import { googleApiKey, Images } from "@config";
 
-import "./index.css";
+import "@config/globalStyles.css";
 
 import { fetchGeoCode } from "@api";
-import { ScrollFabBtn } from "@components";
+import { WqScrollFabBtn, WqModalBtn } from "@components";
 
 import GoogleMapReact from "google-map-react";
 
-const Marker = ({ children }) => <div className={"g_center"} style={{ width: 40, height: 40, backgroundColor: "rgba(255, 0, 0, 0.25)" }}>{children}</div>;
-
 // #region Maps
+const Marker = ({ children }) => {
+	return (
+		<div
+			className={"g_center"}
+			style={{
+				width: 40,
+				height: 40,
+				backgroundColor: "rgba(255, 0, 0, 0.25)"
+			}}>{children}</div>
+	)
+}
+
 function Search(props) {
+
 	// #region Props
-	const { searchQuery = () => {} } = props;
+	const { searchQuery = () => { } } = props;
 	// #endregion
 
 	// #region UseState
@@ -32,7 +43,11 @@ function Search(props) {
 	};
 
 	const toggleSearchQuery = () => {
-		searchQuery(query);
+		if (query !== "") {
+			searchQuery(query);
+		} else {
+			alert("Please Put in an input!")
+		}
 		setQuery("");
 	};
 
@@ -54,7 +69,7 @@ function Search(props) {
 			}}
 		>
 			<input
-				className={"w-100 h-100"}
+				className={"form-control"}
 				value={query}
 				onChange={onChangeQuery}
 				onKeyDown={handleKeyDown}
@@ -66,6 +81,7 @@ function Search(props) {
 				style={{
 					borderWidth: 0,
 					borderRadius: 8,
+					padding: "0px 10px"
 				}}
 			/>
 
@@ -80,7 +96,7 @@ function Search(props) {
 					cursor: "pointer",
 				}}
 			>
-				<i class="fa-solid fa-magnifying-glass"></i>
+				<i className="fa-solid fa-magnifying-glass"></i>
 			</div>
 		</div>
 	);
@@ -89,7 +105,7 @@ function Search(props) {
 function Map(props) {
 
 	// #region Props
-	const { iCoord, setICoord = () => {} } = props;
+	const { iCoord, setICoord = () => { } } = props;
 	// #endregion
 
 	// #region UseState
@@ -98,7 +114,7 @@ function Map(props) {
 	// #endregion
 
 	// #region Helper
-	const addStation = ({x, y, lat, lng, event}) => {
+	const addStation = ({ x, y, lat, lng, event }) => {
 		let arr = [...stationLs];
 
 		let obj = {
@@ -118,7 +134,7 @@ function Map(props) {
 	// #endregion
 
 	// #region Render
-	const renderMarker = ({lat, lng, text}, ind) => {
+	const renderMarker = ({ lat, lng, text }, ind) => {
 		return (
 			<Marker key={ind} lat={lat} lng={lng}>{text}</Marker>
 		)
@@ -172,63 +188,6 @@ function Logo(props) {
 	);
 }
 
-import Modal from "react-modal";
-
-function ControlPaneBtnModal(props) {
-	// #region Props
-	const { btnChild, mdlChild } = props;
-	// #endregion
-
-	// #region UseState
-	const [showModal, setShowModal] = useState(false);
-	// #endregion
-
-	// #region Helper
-	const toggleModal = () => setShowModal((val) => !val);
-	// #endregion
-
-	return (
-		<>
-			{showModal ? (
-				<Modal
-					isOpen={showModal}
-					onRequestClose={toggleModal}
-					style={{
-						overlay: {
-							zIndex: 10,
-							backgroundColor: "rgba(255, 255, 255, 0.75)",
-						},
-						content: {
-							borderRadius: 8,
-							top: 10,
-							bottom: 10,
-							left: 10,
-							right: 10,
-						},
-					}}
-				>
-					{/* Close Btn */}
-					<div style={{ position: "absolute", top: 10, right: 10 }}>
-						<div
-							onClick={toggleModal}
-							className={"btn btn-danger g_center"}
-							style={{ width: 30, height: 30, borderRadius: 15 }}
-						>
-							<i class="fa-solid fa-xmark"></i>
-						</div>
-					</div>
-
-					{/* Modal Content */}
-					{mdlChild}
-				</Modal>
-			) : (
-				<></>
-			)}
-			<div onClick={toggleModal}>{btnChild}</div>
-		</>
-	);
-}
-
 function ControlPane(props) {
 	// #region Init
 	const init = {
@@ -249,7 +208,7 @@ function ControlPane(props) {
 			param: {
 				q: val,
 			},
-			onSetLoading: () => {},
+			onSetLoading: () => { },
 		})
 			.then((data) => {
 				let { lat, lon } = data;
@@ -257,10 +216,14 @@ function ControlPane(props) {
 				lat = +lat;
 				lon = +lon;
 
-				setCoords({
-					lat: lat,
-					lng: lon,
-				});
+				const flag = !isNaN(lat) && !isNaN(lon);
+
+				if (flag) {
+					setCoords({
+						lat: lat,
+						lng: lon
+					})
+				}
 			})
 			.catch((err) => {
 				console.log(`Error: ${err}`);
@@ -314,14 +277,14 @@ function ControlPane(props) {
 							rowGap: 10,
 						}}
 					>
-						<ControlPaneBtnModal
+						<WqModalBtn
 							btnChild={
 								<div
 									className="btn btn-primary w-100 h-100 g_center"
 									style={{ columnGap: 10 }}
 								>
 									<div className={"fs-2 fw-bold"}>Buses</div>
-									<i class="fa-solid fa-bus fa-lg"></i>
+									<i className="fa-solid fa-bus fa-lg"></i>
 								</div>
 							}
 							mdlChild={
@@ -330,7 +293,7 @@ function ControlPane(props) {
 								</div>
 							}
 						/>
-						<ControlPaneBtnModal
+						<WqModalBtn
 							btnChild={
 								<div
 									className="btn btn-danger w-100 h-100 g_center"
@@ -339,7 +302,7 @@ function ControlPane(props) {
 									<div className={"fs-2 fw-bold"}>
 										Passengers
 									</div>
-									<i class="fa-solid fa-user fa-lg"></i>
+									<i className="fa-solid fa-user fa-lg"></i>
 								</div>
 							}
 							mdlChild={
@@ -350,7 +313,7 @@ function ControlPane(props) {
 								</div>
 							}
 						/>
-						<ControlPaneBtnModal
+						<WqModalBtn
 							btnChild={
 								<div
 									className="btn btn-success w-100 h-100 g_center"
@@ -359,7 +322,7 @@ function ControlPane(props) {
 									<div className={"fs-2 fw-bold"}>
 										Ticket Fares
 									</div>
-									<i class="fa-solid fa-money-bill fa-lg"></i>
+									<i className="fa-solid fa-money-bill fa-lg"></i>
 								</div>
 							}
 							mdlChild={
@@ -370,7 +333,7 @@ function ControlPane(props) {
 								</div>
 							}
 						/>
-						<ControlPaneBtnModal
+						<WqModalBtn
 							btnChild={
 								<div
 									className="btn btn-warning w-100 h-100 g_center"
@@ -379,7 +342,7 @@ function ControlPane(props) {
 									<div className={"fs-2 fw-bold"}>
 										Station
 									</div>
-									<i class="fa-solid fa-gas-pump fa-lg"></i>
+									<i className="fa-solid fa-gas-pump fa-lg"></i>
 								</div>
 							}
 							mdlChild={
@@ -391,18 +354,18 @@ function ControlPane(props) {
 							}
 						/>
 						<div
-							className="btn btn-danger w-100 h-100 g_center"
+							className="btn btn-danger w-100 h-50 g_center"
 							style={{ columnGap: 10 }}
 						>
 							<div className={"fs-2 fw-bold"}>Reset</div>
-							<i class="fa-solid fa-rotate-left fa-lg"></i>
+							<i className="fa-solid fa-rotate-left fa-lg"></i>
 						</div>
 						<div
-							className="btn btn-success w-100 h-100 g_center"
+							className="btn btn-success w-100 h-50 g_center"
 							style={{ columnGap: 10 }}
 						>
 							<div className={"fs-2 fw-bold"}>Start</div>
-							<i class="fa-solid fa-flag-checkered fa-lg"></i>
+							<i className="fa-solid fa-flag-checkered fa-lg"></i>
 						</div>
 					</div>
 
@@ -458,7 +421,7 @@ function ResultHeader(props) {
 
 function ResultTabHeader(props) {
 	// #region Props
-	const { ind, setInd = () => {} } = props;
+	const { ind, setInd = () => { } } = props;
 	// #endregion
 
 	// #region Helper
@@ -497,7 +460,7 @@ function ResultTabHeader(props) {
 
 function ResultTabPane(props) {
 	// #region Props
-	const { ind, setInd = () => {}, colors = [] } = props;
+	const { ind, setInd = () => { }, colors = [] } = props;
 	// #endregion
 
 	return (
@@ -546,7 +509,7 @@ function Index(props) {
 	return (
 		<div>
 			{/* ScrollFabBtn */}
-			<ScrollFabBtn />
+			<WqScrollFabBtn />
 
 			{/* Control Pane */}
 			<ControlPane />
