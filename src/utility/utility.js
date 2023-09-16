@@ -63,6 +63,37 @@ function genHourDict(startHr, endHr) {
     return dict;
 }
 
+function genRideZone() {
+    let arr = [];
+
+    for (let ind = 1; ind <= 8; ind += 1) {
+        let obj = {
+            value: ind,
+            name: `Ride Zone ${ind}`
+        }
+
+        arr.push(obj);
+    }
+
+    return arr;
+}
+
+function genRideZoneColor() {
+
+    let arr = [
+        "#141013",
+        "#580909",
+        "#910c5c",
+        "#7c34ad",
+        "#537cda",
+        "#27d5b2",
+        "#54f044",
+        "#eeda28"
+    ];
+
+    return arr;
+}
+
 export {
     genLogUrl,
     genServerUrl,
@@ -72,5 +103,7 @@ export {
 
 export {
     genHourArr,
-    genHourDict
+    genHourDict,
+    genRideZone,
+    genRideZoneColor
 };

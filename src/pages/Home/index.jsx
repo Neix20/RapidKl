@@ -13,7 +13,105 @@ import { useToggle } from "@hooks";
 
 const Context = createContext();
 
-import { GoogleMap, Marker, InfoWindow, DirectionsRenderer, Polyline, useLoadScript } from "@react-google-maps/api";
+import { GoogleMap, Marker, Polyline, useLoadScript } from "@react-google-maps/api";
+
+// #region Custom Hooks
+function useStation(value = []) {
+	const [stationLs, setStationLs] = useState(value);
+
+	const AddStation = (lat, lng) => {
+
+		let arr = [...stationLs];
+
+		const is_hub = (arr.length == 0) ? true : false;
+
+		let obj = {
+			name: `Station ${arr.length + 1}`,
+			lat: lat,
+			lng: lng,
+			is_hub: is_hub,
+			pos: arr.length
+		};
+
+		arr.push(obj);
+
+		setStationLs(arr);
+	}
+
+	const DeleteStation = (ind) => {
+		let arr = [...stationLs];
+
+		if (ind > -1) {
+			arr.splice(ind, 1);
+		}
+
+		setStationLs(arr);
+	}
+
+	const UpdateStation = (item) => {
+		const { pos } = item;
+		let arr = [...stationLs];
+		arr[pos] = item;
+		setStationLs(arr);
+	}
+
+	return [stationLs, setStationLs, AddStation, DeleteStation, UpdateStation];
+}
+
+function useDirection(value = null) {
+	const [direction, setDirection] = useState(value);
+
+	const GenRoute = (stationLs, setStationLs = () => {}) => {
+		let arr = [...stationLs];
+
+		const hub_station = arr.filter(obj => obj.is_hub)[0];
+
+		const origin = hub_station;
+		const dest = hub_station;
+
+		const wayPt = arr.filter(obj => !obj.is_hub)
+			.map((obj) => (
+				{
+					location: obj,
+					stopover: true
+				}
+			));
+
+		const directionService = new google.maps.DirectionsService();
+		directionService.route(
+			{
+				origin: origin,
+				waypoints: wayPt,
+				destination: dest,
+				travelMode: google.maps.TravelMode.DRIVING
+			},
+			(result, status) => {
+				if (status === google.maps.DirectionsStatus.OK) {
+					//changing the state of directions to the result of direction service
+
+					const { overview_path } = result.routes[0];
+					setDirection(overview_path);
+
+					let arr = [...stationLs];
+					setStationLs(arr);
+
+					Logger.info({
+						content: result,
+						fileName: "directionRoute"
+					});
+				} else {
+					Logger.error({
+						content: result,
+						fileName: "directionRouteError",
+					})
+				}
+			}
+		);
+	}
+
+	return [direction, setDirection, GenRoute];
+}
+// #endregion
 
 // #region Map Icons
 function StationHubMarker(props) {
@@ -114,6 +212,9 @@ function Map(props) {
 
 	// #region Props
 	const { iCoord = { lat: 0, lng: 0 }, setICoord = () => { } } = props;
+	const { direction = null, setDirection = () => {} } = props;
+	const { stationLs = [], setStationLs = () => {} } = props;
+	const { AddStation = () => {}, DeleteStation = () => {} } = props;
 	// #endregion
 
 	// #region Constant
@@ -136,14 +237,8 @@ function Map(props) {
 	};
 	// #endregion
 
-	// #region UseStates
-	const [stationLs, setStationLs] = useState([]);
+	// #region UseState
 	const [mapRef, setMapRef] = useState();
-
-	const [direction, setDirection] = useState(null);
-	const [coord, setCoord] = useState(null);
-
-	const [showDir, setShowDir, toggleShowDir] = useToggle(false);
 	// #endregion
 
 	useEffect(() => {
@@ -157,93 +252,26 @@ function Map(props) {
 	const onClick = (e) => {
 		const { latLng } = e;
 
-		let arr = [...stationLs];
+		const lat = latLng.lat();
+		const lon = latLng.lng();
 
-		let obj = {
-			lat: latLng.lat(),
-			lng: latLng.lng(),
-			hub: false,
-			pos: arr.length
-		};
-
-		arr.push(obj);
-
-		setStationLs(arr);
+		AddStation(lat, lon);
 	}
 
-	const onRightClick = (e, ind) => {
-		// Remove Marker
-		let arr = [...stationLs];
-
-		if (ind > -1) {
-			arr.splice(ind, 1);
-		}
-
-		setStationLs(arr);
-	}
-
-	const zoomTo = ({ lat, lng }) => {
-		mapRef?.panTo({ lat, lng });
-	}
-
-	const onMapLoad = (map) => {
-		setMapRef(map);
-	}
-
-	const reset = () => {
-		// toggleRefresh();
-		setStationLs([]);
-		setShowDir(false);
-		setDirection(null);
-	}
-
-	function updateDirection() {
-
-		let arr = [...stationLs];
-
-		const origin = arr[0];
-		const dest = arr[0];
-
-		const wayPt = arr.slice(1).map((obj) => ({
-			location: obj,
-			stopover: true
-		}));
-
-		const directionService = new google.maps.DirectionsService();
-		directionService.route(
-			{
-				origin: origin,
-				waypoints: wayPt,
-				destination: dest,
-				travelMode: google.maps.TravelMode.DRIVING
-			},
-			(result, status) => {
-				if (status === google.maps.DirectionsStatus.OK) {
-					//changing the state of directions to the result of direction service
-					setDirection(result);
-
-					const { overview_path } = result.routes[0];
-					setCoord(overview_path)
-
-					setShowDir(true);
-
-					Logger.info({
-						content: result,
-						fileName: "directionRoute"
-					});
-				} else {
-					console.error(`error fetching directions ${result}`);
-				}
-			}
-		);
-	};
+	const onRightClick = (e, ind) => { DeleteStation(ind) }
+	const zoomTo = ({ lat, lng }) => { mapRef?.panTo({ lat, lng }); }
+	const onMapLoad = (map) => { setMapRef(map); }
 	// #endregion
 
 	// #region Render
 	const renderItem = (item, index) => {
-		const onClick = () => focusMap(item);
+
+		const { is_hub } = item;
+		const onClick = () => zoomTo(item);
+
+		const CMarker = (is_hub) ? StationHubMarker : StationMarker;
 		return (
-			<StationMarker key={index}
+			<CMarker key={index}
 				onClick={onClick}
 				onRightClick={(e) => onRightClick(e, index + 1)}
 				position={{ ...item }}
@@ -261,59 +289,35 @@ function Map(props) {
 	}
 
 	return (
-		<>
-			<div className={"w-100 h-20"}>
-				<div onClick={reset}
-					className="btn btn-danger">
-					Reset
-				</div>
-
-				<div onClick={updateDirection}
-					className="btn btn-success">
-					Start
-				</div>
-			</div>
-			<GoogleMap
-				mapContainerClassName="w-100 h-100"
-				options={mapOption}
-				center={center}
-				zoom={15}
-				onClick={onClick}
-				onLoad={onMapLoad}
-			>
-				{
-					(stationLs.length > 0) ? (
-						<StationHubMarker
-							onClick={() => focusMap(stationLs[0])}
-							onRightClick={(e) => onRightClick(e, 0)}
-							position={{ ...stationLs[0] }} />
-					) : (
-						<></>
-					)
-				}
-				{
-					stationLs.slice(1).map(renderItem)
-				}
-				{
-					(showDir) ? (
-						<>
-							{/* <DirectionsRenderer directions={direction} /> */}
-							<Polyline
-								path={coord}
-								geodesic={false}
-								options={{
-									strokeColor: '#38B44F',
-									strokeOpacity: 1,
-									strokeWeight: 7,
-								}}
-							/>
-						</>
-					) : (
-						<></>
-					)
-				}
-			</GoogleMap>
-		</>
+		<GoogleMap
+			mapContainerClassName="w-100 h-100"
+			options={mapOption}
+			zoom={15} center={center}
+			onClick={onClick}
+			onLoad={onMapLoad}
+		>
+			{
+				stationLs.map(renderItem)
+			}
+			{
+				(direction != null) ? (
+					<>
+						{/* <DirectionsRenderer directions={direction} /> */}
+						<Polyline
+							path={direction}
+							geodesic={false}
+							options={{
+								strokeColor: '#38B44F',
+								strokeOpacity: 1,
+								strokeWeight: 7,
+							}}
+						/>
+					</>
+				) : (
+					<></>
+				)
+			}
+		</GoogleMap>
 	);
 }
 // #endregion
@@ -369,6 +373,9 @@ function ControlPane(props) {
 
 	// #region UseState
 	const [coords, setCoords] = useState(init.coord);
+
+	const [stationLs, setStationLs, AddStation, DeleteStation, UpdateStation] = useStation([]);
+	const [direction, setDirection, GenRoute] = useDirection(null);
 	// #endregion
 
 	// #region Helper
@@ -400,6 +407,15 @@ function ControlPane(props) {
 				console.log(`Error: ${err}`);
 			});
 	};
+
+	const onReset = () => {
+		setStationLs([]);
+		setDirection(null);
+	}
+
+	const onStart = () => {
+		GenRoute(stationLs, setStationLs);
+	}
 	// #endregion
 
 	return (
@@ -445,7 +461,7 @@ function ControlPane(props) {
 							width: "30%",
 							display: "flex",
 							flexDirection: "column",
-							rowGap: 10,
+							rowGap: 10
 						}}
 					>
 						<WqModalBtn
@@ -461,26 +477,6 @@ function ControlPane(props) {
 							mdlChild={
 								<div className={"g_center"}>
 									<div className={"fs-2 fw-bold"}>Buses</div>
-								</div>
-							}
-						/>
-						<WqModalBtn
-							btnChild={
-								<div
-									className="btn btn-warning w-100 h-100 g_center"
-									style={{ columnGap: 10 }}
-								>
-									<div className={"fs-2 fw-bold"}>
-										Ticket Fares
-									</div>
-									<i className="fa-solid fa-money-bill fa-lg"></i>
-								</div>
-							}
-							mdlChild={
-								<div className={"g_center"}>
-									<div className={"fs-2 fw-bold"}>
-										Ticket Fares
-									</div>
 								</div>
 							}
 						/>
@@ -504,14 +500,34 @@ function ControlPane(props) {
 								</div>
 							}
 						/>
-						<div
+						<WqModalBtn
+							btnChild={
+								<div
+									className="btn btn-warning w-100 h-100 g_center"
+									style={{ columnGap: 10 }}
+								>
+									<div className={"fs-2 fw-bold"}>
+										Ticket Fares
+									</div>
+									<i className="fa-solid fa-money-bill fa-lg"></i>
+								</div>
+							}
+							mdlChild={
+								<div className={"g_center"}>
+									<div className={"fs-2 fw-bold"}>
+										Ticket Fares
+									</div>
+								</div>
+							}
+						/>
+						<div onClick={onReset}
 							className="btn btn-danger w-100 h-50 g_center"
 							style={{ columnGap: 10 }}
 						>
 							<div className={"fs-2 fw-bold"}>Reset</div>
 							<i className="fa-solid fa-rotate-left fa-lg"></i>
 						</div>
-						<div
+						<div onClick={onStart}
 							className="btn btn-success w-100 h-50 g_center"
 							style={{ columnGap: 10 }}
 						>
@@ -523,18 +539,19 @@ function ControlPane(props) {
 					{/* Map */}
 					<div
 						className={"w-100 h-100"}
-						style={{
-							display: "flex",
-							flexDirection: "column",
-							rowGap: 10,
-						}}
+						style={{ display: "flex", flexDirection: "column", rowGap: 10 }}
 					>
 						<div style={{ width: "100%", height: "10%" }}>
 							<Search searchQuery={searchQuery} />
 						</div>
 						<div className={"w-100 h-100"}>
-							<Map iCoord={coords} setICoord={setCoords}
-							/>
+							<Map 
+								iCoord={coords} setICoord={setCoords} 
+								direction={direction} setDirection={setDirection}
+								stationLs={stationLs} setStationLs={setStationLs}
+								AddStation={AddStation} DeleteStation={DeleteStation} 
+								UpdateStation={UpdateStation}	
+								/>
 						</div>
 					</div>
 				</div>
