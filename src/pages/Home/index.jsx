@@ -9,6 +9,8 @@ import "@config/globalStyles.css";
 import { fetchGeoCode } from "@api";
 import { WqScrollFabBtn, WqModalBtn, WqLoading, WqLoadingModal } from "@components";
 
+import { useToggle } from "@hooks";
+
 const Context = createContext();
 
 import { GoogleMap, Marker, InfoWindow, DirectionsRenderer, Polyline, useLoadScript } from "@react-google-maps/api";
@@ -28,15 +30,6 @@ function StationMarker(props) {
 			icon={"http://maps.google.com/mapfiles/ms/icons/green-dot.png"}
 			{...props} />
 	)
-}
-// #endregion
-
-// #region Hooks
-function useToggle(value = false) {
-	const [flag, setFlag] = useState(value);
-	const toggleFlag = () => setFlag((val) => !val);
-
-	return [flag, setFlag, toggleFlag];
 }
 // #endregion
 

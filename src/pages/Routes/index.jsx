@@ -7,18 +7,15 @@ import Home from "@pages/Home";
 const RouteItems = {
 	"Debug": {
 		path: "/Debug",
-		element: <Debug />,
-		title: "Debug",
+		element: <Debug />
 	},
 	"Home": {
 		path: "/Home",
-		element: <Home />,
-		title: "Home"
+		element: <Home />
 	},
 	"Index": {
 		path: "/",
-		element: <Home />,
-		title: "Home"
+		element: <Debug />
 	},
 };
 

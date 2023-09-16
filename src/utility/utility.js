@@ -1,17 +1,19 @@
 import { clsConst } from "@config";
 
+import { DateTime } from "luxon";
+
 function genLogUrl(action) {
-	const { LOG_URL } = clsConst;
-	return `${LOG_URL}/${action}`;
+    const { LOG_URL } = clsConst;
+    return `${LOG_URL}/${action}`;
 }
 
 function genServerUrl(action) {
-	const { SERVER_URL } = clsConst;
-	return `${SERVER_URL}/${action}`;
+    const { SERVER_URL } = clsConst;
+    return `${SERVER_URL}/${action}`;
 }
 
 function requestObj(obj) {
-	return obj;
+    return obj;
 }
 
 function genFetchUrl(url, param = {}) {
@@ -29,4 +31,46 @@ function genFetchUrl(url, param = {}) {
     return res;
 }
 
-export { genLogUrl, genServerUrl, requestObj, genFetchUrl };
+function genHourArr(startHr, endHr) {
+    let arr = [];
+
+    for (let hr = startHr; hr <= endHr; hr += 1) {
+        arr.push(hr);
+    }
+
+    return arr;
+}
+
+function genHourDict(startHr, endHr) {
+    let arr = genHourArr(startHr, endHr);
+
+    let dict = {};
+
+    for (let hr of arr) {
+        const hrDt = DateTime.fromObject({ hour: hr });
+
+        let hrIso = hrDt.toFormat("h:mma");
+
+        let obj = {
+            iso: hrIso,
+            supply: 1,
+            demand: 1
+        };
+
+        dict[hrIso] = obj;
+    }
+
+    return dict;
+}
+
+export {
+    genLogUrl,
+    genServerUrl,
+    requestObj,
+    genFetchUrl
+};
+
+export {
+    genHourArr,
+    genHourDict
+};

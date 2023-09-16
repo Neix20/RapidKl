@@ -11,3 +11,22 @@
     left: 0;
     right: 0;
 }
+
+.slider {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -moz-transform: rotate(270deg);
+    transform: translateX(-50%) translateY(-50%) rotate(270deg);
+}
+
+/* Firefox */
+.g_input[type=number] {
+    appearance: textfield;
+}
+
+.g_input::-webkit-outer-spin-button,
+.g_input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}

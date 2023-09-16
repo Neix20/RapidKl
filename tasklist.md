@@ -8,8 +8,15 @@
       - [x] Get Distance
       - [x] Get Time
   - [x] Put Bus Marker
-    - [ ] Able to Update Bus Station
-    - [ ] Bus Station Controls for Crowd Control
     - [ ] Bus Animation Between Station
 - [ ] Control Panel
 - [ ] Select Start, Then Submit
+
+#### 20230916
+- [ ] General
+  - [ ] File Upload API
+    - [ ] Input Coordinates into Simulation To Generate Bus Route
+  - [x] Input Range
+  - [x] Input Date Time
+- [ ] Bus Node
+- [ ] Station Node
