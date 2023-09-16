@@ -18,5 +18,9 @@ export default defineConfig({
       "@api":  path.resolve(__dirname, "./src/api/"),
       "@hooks":  path.resolve(__dirname, "./src/hooks/"),
     },
-  }
+  },
+  server: {
+    open: true,
+    origin: 'http://localhost:51234/'
+  },
 })

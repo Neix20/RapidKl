@@ -2,8 +2,6 @@ import React, { useState, useEffect, useMemo, useContext, createContext } from "
 
 import { Logger, Utility } from "@utility";
 
-import { Link } from "react-router-dom";
-
 import { googleApiKey, Images } from "@config";
 
 import "@config/globalStyles.css";
@@ -11,24 +9,38 @@ import "@config/globalStyles.css";
 import { fetchGeoCode } from "@api";
 import { WqScrollFabBtn, WqModalBtn, WqLoading, WqLoadingModal } from "@components";
 
-// import GoogleMapReact from "google-map-react";
-
 const Context = createContext();
-import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
+
+import { GoogleMap, Marker, InfoWindow, DirectionsRenderer, Polyline, useLoadScript } from "@react-google-maps/api";
+
+// #region Map Icons
+function StationHubMarker(props) {
+	return (
+		<Marker
+			icon={"http://maps.google.com/mapfiles/ms/icons/red-dot.png"}
+			{...props} />
+	)
+}
+
+function StationMarker(props) {
+	return (
+		<Marker
+			icon={"http://maps.google.com/mapfiles/ms/icons/green-dot.png"}
+			{...props} />
+	)
+}
+// #endregion
+
+// #region Hooks
+function useToggle(value = false) {
+	const [flag, setFlag] = useState(value);
+	const toggleFlag = () => setFlag((val) => !val);
+
+	return [flag, setFlag, toggleFlag];
+}
+// #endregion
 
 // #region Maps
-// const Marker = ({ children }) => {
-// 	return (
-// 		<div
-// 			className={"g_center"}
-// 			style={{
-// 				width: 40,
-// 				height: 40,
-// 				backgroundColor: "rgba(255, 0, 0, 0.25)"
-// 			}}>{children}</div>
-// 	)
-// }
-
 function Search(props) {
 
 	// #region Props
@@ -105,89 +117,210 @@ function Search(props) {
 	);
 }
 
-// function Map(props) {
-
-// 	// #region Props
-// 	const { iCoord, setICoord = () => { } } = props;
-// 	// #endregion
-
-// 	// #region UseState
-// 	const [refresh, setRefresh] = useState(false);
-// 	const [stationLs, setStationLs] = useState([]);
-// 	// #endregion
-
-// 	// #region Helper
-// 	const addStation = ({ x, y, lat, lng, event }) => {
-// 		let arr = [...stationLs];
-
-// 		let obj = {
-// 			lat: lat,
-// 			lng: lng,
-// 			text: `Item ${arr.length}`
-// 		}
-
-// 		console.log(obj);
-
-// 		arr.push(obj);
-
-// 		setStationLs(arr);
-// 	}
-
-// 	const toggleRefresh = () => setRefresh(val => !val);
-// 	// #endregion
-
-// 	// #region Render
-// 	const renderMarker = ({ lat, lng, text }, ind) => {
-// 		return (
-// 			<Marker key={ind} lat={lat} lng={lng}>{text}</Marker>
-// 		)
-// 	}
-// 	// #endregion
-
-// 	return (
-// 		<GoogleMapReact
-// 			bootstrapURLKeys={{ key: googleApiKey }}
-// 			defaultCenter={iCoord}
-// 			onClick={addStation}
-// 			defaultZoom={15}
-// 		>
-// 			{stationLs.map(renderMarker)}
-// 		</GoogleMapReact>
-// 	);
-// }
-
 function Map(props) {
 
-	const { iCoord, setICoord = () => { } } = props;
+	// #region Props
+	const { iCoord = { lat: 0, lng: 0 }, setICoord = () => { } } = props;
+	// #endregion
 
+	// #region Constant
 	const { isLoaded } = useLoadScript({ googleMapsApiKey: googleApiKey });
 	const center = useMemo(() => (iCoord), []);
 
+	const mapOption = {
+		styles: [
+			{
+				featureType: 'poi',
+				elementType: 'labels',
+				stylers: [{ visibility: 'off' }],
+			},
+			{
+				featureType: 'transit',
+				elementType: 'labels',
+				stylers: [{ visibility: 'off' }],
+			}
+		]
+	};
+	// #endregion
+
+	// #region UseStates
+	const [stationLs, setStationLs] = useState([]);
+	const [mapRef, setMapRef] = useState();
+
+	const [direction, setDirection] = useState(null);
+	const [coord, setCoord] = useState(null);
+
+	const [showDir, setShowDir, toggleShowDir] = useToggle(false);
+	// #endregion
+
+	useEffect(() => {
+		const { lat, lng } = iCoord;
+		if (lat != 0 && lng != 0) {
+			zoomTo(iCoord);
+		}
+	}, [JSON.stringify(iCoord)]);
+
+	// #region Helper
 	const onClick = (e) => {
-		const {latLng } = e;
-		console.log(latLng.lat());
-		console.log(latLng.lng())
+		const { latLng } = e;
+
+		let arr = [...stationLs];
+
+		let obj = {
+			lat: latLng.lat(),
+			lng: latLng.lng(),
+			hub: false,
+			pos: arr.length
+		};
+
+		arr.push(obj);
+
+		setStationLs(arr);
 	}
+
+	const onRightClick = (e, ind) => {
+		// Remove Marker
+		let arr = [...stationLs];
+
+		if (ind > -1) {
+			arr.splice(ind, 1);
+		}
+
+		setStationLs(arr);
+	}
+
+	const zoomTo = ({ lat, lng }) => {
+		mapRef?.panTo({ lat, lng });
+	}
+
+	const onMapLoad = (map) => {
+		setMapRef(map);
+	}
+
+	const reset = () => {
+		// toggleRefresh();
+		setStationLs([]);
+		setShowDir(false);
+		setDirection(null);
+	}
+
+	function updateDirection() {
+
+		let arr = [...stationLs];
+
+		const origin = arr[0];
+		const dest = arr[0];
+
+		const wayPt = arr.slice(1).map((obj) => ({
+			location: obj,
+			stopover: true
+		}));
+
+		const directionService = new google.maps.DirectionsService();
+		directionService.route(
+			{
+				origin: origin,
+				waypoints: wayPt,
+				destination: dest,
+				travelMode: google.maps.TravelMode.DRIVING
+			},
+			(result, status) => {
+				if (status === google.maps.DirectionsStatus.OK) {
+					//changing the state of directions to the result of direction service
+					setDirection(result);
+
+					const { overview_path } = result.routes[0];
+					setCoord(overview_path)
+
+					setShowDir(true);
+
+					Logger.info({
+						content: result,
+						fileName: "directionRoute"
+					});
+				} else {
+					console.error(`error fetching directions ${result}`);
+				}
+			}
+		);
+	};
+	// #endregion
+
+	// #region Render
+	const renderItem = (item, index) => {
+		const onClick = () => focusMap(item);
+		return (
+			<StationMarker key={index}
+				onClick={onClick}
+				onRightClick={(e) => onRightClick(e, index + 1)}
+				position={{ ...item }}
+			/>
+		)
+	}
+	// #endregion
 
 	if (!isLoaded) {
 		return (
 			<div className="w-100 h-100 g_center" style={{ backgroundColor: "#FFF" }}>
-			<WqLoading />
-		</div>
+				<WqLoading />
+			</div>
 		)
 	}
 
 	return (
-		<GoogleMap
-			mapContainerClassName="w-100 h-100"
-			center={center}
-			zoom={15}
-			onClick={onClick}
-		>
-			<Marker 
-				visible={true}
-				position={iCoord} />
-		</GoogleMap>
+		<>
+			<div className={"w-100 h-20"}>
+				<div onClick={reset}
+					className="btn btn-danger">
+					Reset
+				</div>
+
+				<div onClick={updateDirection}
+					className="btn btn-success">
+					Start
+				</div>
+			</div>
+			<GoogleMap
+				mapContainerClassName="w-100 h-100"
+				options={mapOption}
+				center={center}
+				zoom={15}
+				onClick={onClick}
+				onLoad={onMapLoad}
+			>
+				{
+					(stationLs.length > 0) ? (
+						<StationHubMarker
+							onClick={() => focusMap(stationLs[0])}
+							onRightClick={(e) => onRightClick(e, 0)}
+							position={{ ...stationLs[0] }} />
+					) : (
+						<></>
+					)
+				}
+				{
+					stationLs.slice(1).map(renderItem)
+				}
+				{
+					(showDir) ? (
+						<>
+							{/* <DirectionsRenderer directions={direction} /> */}
+							<Polyline
+								path={coord}
+								geodesic={false}
+								options={{
+									strokeColor: '#38B44F',
+									strokeOpacity: 1,
+									strokeWeight: 7,
+								}}
+							/>
+						</>
+					) : (
+						<></>
+					)
+				}
+			</GoogleMap>
+		</>
 	);
 }
 // #endregion
@@ -407,10 +540,7 @@ function ControlPane(props) {
 							<Search searchQuery={searchQuery} />
 						</div>
 						<div className={"w-100 h-100"}>
-							<Map
-								key={JSON.stringify(coords)}
-								iCoord={coords}
-								setICoord={setCoords}
+							<Map iCoord={coords} setICoord={setCoords}
 							/>
 						</div>
 					</div>

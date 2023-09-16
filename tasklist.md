@@ -2,13 +2,14 @@
 
 - [ ] Google Maps API
   - [x] Put Person Marker
-  - [ ] Put Station Marker
-    - [ ] Able to Update Station Name
-    - [ ] Plot Route Between 2 Station
-      - [ ] Get Distance
-      - [ ] Get Time
-  - [ ] Put Bus Marker
+  - [x] Put Station Marker
+    - [x] Marker has Pop up
+    - [x] Plot Route Between 2 Station
+      - [x] Get Distance
+      - [x] Get Time
+  - [x] Put Bus Marker
     - [ ] Able to Update Bus Station
     - [ ] Bus Station Controls for Crowd Control
     - [ ] Bus Animation Between Station
 - [ ] Control Panel
+- [ ] Select Start, Then Submit
