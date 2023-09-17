@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 
 import { Logger, Utility } from "@utility";
 
-import { fetchGeoCode } from "@api";
+import { fetchGeoCode, fetchTest } from "@api";
 
 import { useToggle } from "@hooks";
 
@@ -30,7 +30,18 @@ function Index(props) {
 			})
 			.catch(err => {
 				console.log(`Error: ${err}`);
-			})
+			});
+
+		fetchTest({
+			param: {},
+			onSetLoading: () => { }
+		})
+		.then(data => {
+			console.log(data);
+		})
+		.catch(err => {
+			console.log(`Error: ${err}`);
+		});
 	}, []);
 	// #endregion
 
