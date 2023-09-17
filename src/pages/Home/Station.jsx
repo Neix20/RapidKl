@@ -13,8 +13,8 @@ function StationNodeSdInputSlider(props) {
     // #region Props
     const { sliderStyle = {}, txtStyle = {} } = props;
     const { min = 0, max = 30 } = props;
-    const { width = 40 } = props;
     const { value, setValue } = props;
+    const { width = 40 } = props;
     // #endregion
 
     // #region Helper
@@ -189,7 +189,7 @@ function StationInput(props) {
     // #endregion
 
     // #region Render
-    const renderOption = ({ name, value }) => (<option value={value}>{name}</option>);
+    const renderOption = ({ name, value }, index) => (<option key={index} value={value}>{name}</option>);
     // #endregion
 
     return (

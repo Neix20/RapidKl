@@ -22,7 +22,7 @@ import WqStation from "./Station";
 function useBus(value = []) {
 	const [busLs, setBusLs] = useState(value);
 
-	const AddBus = () => {
+	const AddBus = (lat = 3.140853, lng = 101.693207) => {
 		let arr = [...busLs];
 
 		let obj = {
@@ -33,6 +33,8 @@ function useBus(value = []) {
 			"time_iso": "6:00",
 			"fuel_consumption_per_km": 0,
 			"major_break": 0,
+			lat: lat,
+			lng: lng,
 			pos: arr.length
 		}
 		arr.push(obj);
@@ -123,7 +125,7 @@ function useStation(value = []) {
 
 	const UpdateStation = (item) => {
 		const { pos, ride_zone = 1 } = item;
-		
+
 		let arr = [...stationLs];
 
 		let obj = {
@@ -224,7 +226,7 @@ function useMap(value = null) {
 function StationHubMarker(props) {
 	return (
 		<Marker
-			icon={"http://maps.google.com/mapfiles/ms/icons/red-dot.png"}
+			icon={"https://neix.s3.amazonaws.com/wqRklHub.png"}
 			{...props} />
 	)
 }
@@ -232,7 +234,7 @@ function StationHubMarker(props) {
 function StationMarker(props) {
 	return (
 		<Marker
-			icon={"http://maps.google.com/mapfiles/ms/icons/green-dot.png"}
+			icon={"https://neix.s3.amazonaws.com/wqRklStation.png"}
 			{...props} />
 	)
 }
@@ -248,7 +250,7 @@ function BusMarker(props) {
 function BusColorMarker(props) {
 	return (
 		<Marker
-			icon={"http://maps.google.com/mapfiles/ms/icons/yellow-dot.png"}
+			icon={"https://neix.s3.amazonaws.com/bus_color.png"}
 			{...props} />
 	)
 }
@@ -339,6 +341,7 @@ function Map(props) {
 	const { direction, setDirection, GenRoute } = props;
 	const { stationLs, AddStation, DeleteStation, setStationLs, UpdateStation, MakeStationHub } = props;
 	const { mapRef, setMapRef, onMapLoad, onMarkerZoom } = props;
+	const { busLs, DeleteBus } = props;
 	// #endregion
 
 	// #region Constant
@@ -371,7 +374,7 @@ function Map(props) {
 	// #endregion
 
 	// #region Helper
-	const onClick = (e) => {
+	const onMapClick = (e) => {
 		const { latLng } = e;
 
 		const lat = latLng.lat();
@@ -379,15 +382,17 @@ function Map(props) {
 
 		AddStation(lat, lon);
 	}
-	const onRightClick = (e, ind) => { DeleteStation(ind); }
+
+	const RemoveStation = (e, ind) => { DeleteStation(ind); }
+	const RemoveBus = (e, ind) => { DeleteBus(ind); }
 	// #endregion
 
 	// #region Render
-	const renderItem = (item, index) => {
+	const renderStation = (item, index) => {
 
 		const { is_hub } = item;
 		const onClick = () => onMarkerZoom(item);
-		const onRightClick = (e) => onRightClick(e, index + 1);
+		const onRightClick = (e) => RemoveStation(e, index);
 
 		const CMarker = (is_hub) ? StationHubMarker : StationMarker;
 
@@ -395,7 +400,20 @@ function Map(props) {
 			<CMarker key={index}
 				onClick={onClick}
 				onRightClick={onRightClick}
-				position={{ ...item }}
+				position={item}
+			/>
+		)
+	}
+
+	const renderBus = (item, index) => {
+		const onClick = () => onMarkerZoom(item);
+		const onRightClick = (e) => RemoveBus(e, index);
+
+		return (
+			<BusColorMarker key={index}
+				onClick={onClick}
+				onRightClick={onRightClick}
+				position={item}
 			/>
 		)
 	}
@@ -414,10 +432,13 @@ function Map(props) {
 			mapContainerClassName="w-100 h-100"
 			options={mapOption}
 			zoom={15} center={center}
-			onClick={onClick}
+			onClick={onMapClick}
 			onLoad={onMapLoad}>
 			{
-				stationLs.map(renderItem)
+				stationLs.map(renderStation)
+			}
+			{
+				busLs.map(renderBus)
 			}
 			{
 				(direction != null) ? (
@@ -510,10 +531,10 @@ function ControlPane(props) {
 
 	const busHook = useBus([]);
 	const busObj = {
-		busLs: busHook[0], 
-		setBusLs: busHook[1], 
-		AddBus: busHook[2], 
-		UpdateBus: busHook[3], 
+		busLs: busHook[0],
+		setBusLs: busHook[1],
+		AddBus: busHook[2],
+		UpdateBus: busHook[3],
 		DeleteBus: busHook[4]
 	}
 	// #endregion
@@ -523,6 +544,7 @@ function ControlPane(props) {
 
 	const { stationLs, setStationLs } = stationObj;
 	const { direction, setDirection, GenRoute } = directionObj;
+	const { busLs, setBusLs, AddBus } = busObj;
 
 	// #region Helper
 	const searchQuery = (val) => {
@@ -554,7 +576,15 @@ function ControlPane(props) {
 			});
 	};
 
+	const InsertBus = () => {
+		if (stationLs.length > 0) {
+			const { lat, lng } = stationLs[0];
+			AddBus(lat, lng);
+		}
+	}
+
 	const onReset = () => {
+		setBusLs([]);
 		setStationLs([]);
 		setDirection(null);
 	}
@@ -624,7 +654,7 @@ function ControlPane(props) {
 							rowGap: 10
 						}}
 					>
-						<WqBus />
+						<WqBus flag={stationLs.length > 0} {...busObj} {...mapObj} AddBus={InsertBus} />
 						<WqStation {...stationObj} {...mapObj} />
 						<WqModalBtn
 							btnChild={
@@ -673,7 +703,7 @@ function ControlPane(props) {
 						<div className={"w-100 h-100"}>
 							<Map
 								iCoord={coords} setICoord={setCoords}
-								{...directionObj} {...stationObj} {...mapObj}
+								{...directionObj} {...stationObj} {...mapObj} {...busObj}
 							/>
 						</div>
 					</div>
