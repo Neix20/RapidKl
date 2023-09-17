@@ -34,16 +34,12 @@ function StationNodeSdInputSlider(props) {
     return (
         <div style={{ width: width, rowGap: 5, display: "flex", flexDirection: "column" }}>
             <input
-                value={value}
-                onChange={handleValue}
+                value={value} onChange={handleValue}
                 className={"g_input"}
                 type={"number"}
                 placeholder={"0"}
                 min={min} max={max} step={1}
-                style={{
-                    width: width,
-                    padding: "0px 5px",
-                }} />
+                style={{ width: width, padding: "0px 5px" }} />
             <div style={{
                 position: "relative",
                 width: width,

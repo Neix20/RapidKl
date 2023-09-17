@@ -19,6 +19,46 @@ import WqBus from "./Bus";
 import WqStation from "./Station";
 
 // #region Custom Hooks
+function useBus(value = []) {
+	const [busLs, setBusLs] = useState(value);
+
+	const AddBus = () => {
+		let arr = [...busLs];
+
+		let obj = {
+			"name": "",
+			"driver": "",
+			"max_occupants": 0,
+			"starting_time": 0,
+			"time_iso": "6:00",
+			"fuel_consumption_per_km": 0,
+			"major_break": 0,
+			pos: arr.length
+		}
+		arr.push(obj);
+
+		setBusLs(arr);
+	}
+
+	const UpdateBus = (item) => {
+		const { pos } = item;
+
+		let arr = [...busLs];
+		arr[pos] = item;
+		setBusLs(arr);
+	}
+
+	const DeleteBus = (ind) => {
+		let arr = [...busLs];
+		if (ind > -1) {
+			arr.splice(ind, 1);
+		}
+		setBusLs(arr);
+	}
+
+	return [busLs, setBusLs, AddBus, UpdateBus, DeleteBus];
+}
+
 function useStation(value = []) {
 	const [stationLs, setStationLs] = useState(value);
 
@@ -83,6 +123,7 @@ function useStation(value = []) {
 
 	const UpdateStation = (item) => {
 		const { pos, ride_zone = 1 } = item;
+		
 		let arr = [...stationLs];
 
 		let obj = {
@@ -195,6 +236,22 @@ function StationMarker(props) {
 			{...props} />
 	)
 }
+
+function BusMarker(props) {
+	return (
+		<Marker
+			icon={"http://maps.google.com/mapfiles/ms/icons/blue-dot.png"}
+			{...props} />
+	)
+}
+
+function BusColorMarker(props) {
+	return (
+		<Marker
+			icon={"http://maps.google.com/mapfiles/ms/icons/yellow-dot.png"}
+			{...props} />
+	)
+}
 // #endregion
 
 // #region Maps
@@ -280,7 +337,7 @@ function Map(props) {
 	const { iCoord = { lat: 0, lng: 0 }, setICoord = () => { } } = props;
 
 	const { direction, setDirection, GenRoute } = props;
-	const { stationLs, setStationLs, AddStation, DeleteStation, UpdateStation, MakeStationHub } = props;
+	const { stationLs, AddStation, DeleteStation, setStationLs, UpdateStation, MakeStationHub } = props;
 	const { mapRef, setMapRef, onMapLoad, onMarkerZoom } = props;
 	// #endregion
 
@@ -450,6 +507,15 @@ function ControlPane(props) {
 		onMapLoad: mapHook[2],
 		onMarkerZoom: mapHook[3]
 	}
+
+	const busHook = useBus([]);
+	const busObj = {
+		busLs: busHook[0], 
+		setBusLs: busHook[1], 
+		AddBus: busHook[2], 
+		UpdateBus: busHook[3], 
+		DeleteBus: busHook[4]
+	}
 	// #endregion
 
 	const [loading, setLoading] = useContext(Context);
@@ -457,7 +523,6 @@ function ControlPane(props) {
 
 	const { stationLs, setStationLs } = stationObj;
 	const { direction, setDirection, GenRoute } = directionObj;
-	const { mapRef, setMapRef, onMapLoad, onMarkerZoom } = mapObj;
 
 	// #region Helper
 	const searchQuery = (val) => {

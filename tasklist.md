@@ -18,16 +18,19 @@
     - [ ] Input Coordinates into Simulation To Generate Bus Route
   - [x] Input Range
   - [x] Input Date Time
-- [ ] Bus Node
+- [x] Bus Node
 - [x] Station Node
 
 
 #### 20230917
-- [ ] Bus Node
-- [ ] File Upload Api
+- [x] Bus Node
+- [ ] Station Info
 - [ ] Operational Cost
+- [ ] Map Popup (Use Info Window)
+
+- [ ] File Upload Api
 
 - [ ] Server Hosting
 
-- [ ] Map Popup (Use Info Window)
 - [ ] Bus Animations
+  - [ ] Bus Blink Interval
