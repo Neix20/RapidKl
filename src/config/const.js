@@ -1,8 +1,7 @@
 const APP_VERSION = "1.0.0";
 
-const SERVER_URL = "https://7764-210-195-254-144.ngrok-free.app";
-
-const LOG_URL = "http://localhost:51234";
+const SERVER_URL = "https://neix-chs.tech/simulation";
+const LOG_URL = "https://neix-chs.tech/log";
 
 export {
     APP_VERSION,
