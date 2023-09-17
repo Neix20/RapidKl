@@ -372,7 +372,8 @@ function BusColorMarker(props) {
 // #region Map Res Icons
 function StationHubResMarker(props) {
 
-	const { onClick = () => { }, name, initial = false } = props;
+	const { onClick = () => { }, initial = false } = props;
+	const { name, people_waiting, inbound, outbound, lat, lng } = props;
 
 	const [showModal, setShowModal, toggleModal] = useToggle(initial);
 
@@ -386,7 +387,34 @@ function StationHubResMarker(props) {
 			onClick={cusClick}>
 			{
 				(showModal) ? (
-					<InfoWindow><span>{name}</span></InfoWindow>
+					<InfoWindow>
+					<div style={{ display: "flex", flexDirection: "column", width: 400 }}>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Name</div>
+								<div>{name}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>People Waiting</div>
+								<div>{people_waiting}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Total Inbound</div>
+								<div>{inbound}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Total Outbound</div>
+								<div>{outbound}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Latitude</div>
+								<div>{lat}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Longitude</div>
+								<div>{lng}</div>
+							</div>
+						</div>
+					</InfoWindow>
 				) : (
 					<></>
 				)
@@ -397,7 +425,8 @@ function StationHubResMarker(props) {
 
 function StationResMarker(props) {
 
-	const { onClick = () => { }, name, initial = false } = props;
+	const { onClick = () => { }, initial = false } = props;
+	const { name, people_waiting, inbound, outbound, lat, lng } = props;
 
 	const [showModal, setShowModal, toggleModal] = useToggle(initial);
 
@@ -411,7 +440,34 @@ function StationResMarker(props) {
 			onClick={cusClick}>
 			{
 				(showModal) ? (
-					<InfoWindow><span>{name}</span></InfoWindow>
+					<InfoWindow>
+						<div style={{ display: "flex", flexDirection: "column", width: 400 }}>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Name</div>
+								<div>{name}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>People Waiting</div>
+								<div>{people_waiting}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Total Inbound</div>
+								<div>{inbound}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Total Outbound</div>
+								<div>{outbound}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Latitude</div>
+								<div>{lat}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Longitude</div>
+								<div>{lng}</div>
+							</div>
+						</div>
+					</InfoWindow>
 				) : (
 					<></>
 				)
@@ -1292,7 +1348,7 @@ function ResultTabPane(props) {
 	}
 
 	const [frame, setFrame] = useState(0);
-	const [duration, setDuration] = useState(1);
+	const [duration, setDuration] = useState(5);
 
 	const maxFrame = 1050;
 	const time_per_frame = 1000 * 60 * duration / maxFrame;
@@ -1323,7 +1379,6 @@ function ResultTabPane(props) {
 						{DateTime.fromObject({ hour: 6 + Math.floor(frame / 60), minute: frame % 60 }).toFormat("hh:mm")}
 					</div>
 					<PlayBtn flag={play} onClick={togglePlay} />
-					<div className={"fw-bold fs-2"}>Frame {frame}</div>
 					<div style={{ padding: "0px 10px" }}>
 						<input type={"range"}
 							value={frame} onChange={toggleFrame}

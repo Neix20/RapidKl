@@ -186,7 +186,9 @@ function getRealTimeData(midJourneyCalculationsArr, logsArr, timestamp) {
             newBusState['lng'] = midJourneyCalculationsArr[newBusState['destination']].lat_lngs[0].lng
         }
         else {
-            let curMidJourney = midJourneyCalculationsArr[newBusState['destination']]
+            let n = midJourneyCalculationsArr.length
+            let lengthRes = (((newBusState['destination'] - 1) % n) + n) % n
+            let curMidJourney = midJourneyCalculationsArr[lengthRes]
             let resultIndex = binarySearchForCoords(curMidJourney.accu_dists, curMidJourney.total_dist * percentageProgress)
             if (resultIndex[1] == null) {
                 newBusState['lat'] = curMidJourney.lat_lngs[resultIndex[0]].lat
@@ -244,7 +246,7 @@ function parser(jsonData, directionJson) {
             }
         }
 
-        midJourneyCalculationsArr[(i + 1) % (midJourneyCalculationsArr.length)] = {
+        midJourneyCalculationsArr[(i) % (midJourneyCalculationsArr.length)] = {
             "total_dist": total_dist_in_step,
             "accu_dists": dist_between_points,
             "lat_lngs": all_points_in_path,

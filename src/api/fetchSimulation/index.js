@@ -60,8 +60,11 @@ const Index = async (props) => {
                     ...station_arr[jnd],
                     lat: lat,
                     lng: lng,
+                    is_hub: false,
                 }
             }
+
+            station_arr[0].is_hub = true;
 
             station_ls.push(station_arr);
             buses_ls.push(buses_states);
