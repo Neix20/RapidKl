@@ -34,5 +34,5 @@
 - [x] Initial Load Data
 - [ ] Output Animation Data
 
-- [ ] Bus Animations
+- [x] Bus Animations
   - [ ] Bus Blink Interval
