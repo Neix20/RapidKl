@@ -1191,6 +1191,58 @@ function PlayBtn(props) {
 	)
 }
 
+function ResultExpense(props) {
+	const { data = {} } = props;
+	const { driver_expenses, fares_revenue, fuel_expenses, net_profit, other_expenses, passangers_missed, passangers_transported, total_expenses, total_profit } = data;
+
+	const style = {
+		txtDivStyle: {
+			display: "flex",
+		}
+	}
+
+	return (
+		<>
+			<div className={"g_center"} style={{ justifyContent: "space-between"}}>
+				<div className={"fw-bold fs-6"}>Driver Expenses</div>
+				<div className={"fs-6"}>{driver_expenses}</div>
+			</div>
+			<div className={"g_center"} style={{ justifyContent: "space-between"}}>
+				<div className={"fw-bold fs-6"}>Fares Revenue</div>
+				<div className={"fs-6"}>{fares_revenue}</div>
+			</div>
+			<div className={"g_center"} style={{ justifyContent: "space-between"}}>
+				<div className={"fw-bold fs-6"}>Fuel Expenses</div>
+				<div className={"fs-6"}>{fuel_expenses}</div>
+			</div>
+			<div className={"g_center"} style={{ justifyContent: "space-between"}}>
+				<div className={"fw-bold fs-6"}>Net Profit</div>
+				<div className={"fs-6"}>{net_profit}</div>
+			</div>
+			<div className={"g_center"} style={{ justifyContent: "space-between"}}>
+				<div className={"fw-bold fs-6"}>Other Expenses</div>
+				<div className={"fs-6"}>{other_expenses}</div>
+			</div>
+			<div className={"g_center"} style={{ justifyContent: "space-between"}}>
+				<div className={"fw-bold fs-6"}>Passenger Missed</div>
+				<div className={"fs-6"}>{passangers_missed}</div>
+			</div>
+			<div className={"g_center"} style={{ justifyContent: "space-between"}}>
+				<div className={"fw-bold fs-6"}>Passenger Transported</div>
+				<div className={"fs-6"}>{passangers_transported}</div>
+			</div>
+			<div className={"g_center"} style={{ justifyContent: "space-between"}}>
+				<div className={"fw-bold fs-6"}>Total Expenses</div>
+				<div className={"fs-6"}>{total_expenses}</div>
+			</div>
+			<div className={"g_center"} style={{ justifyContent: "space-between"}}>
+				<div className={"fw-bold fs-6"}>Total Profit</div>
+				<div className={"fs-6"}>{total_profit}</div>
+			</div>
+		</>
+	)
+}
+
 function ResultTabPane(props) {
 
 	// #region Props
@@ -1209,16 +1261,15 @@ function ResultTabPane(props) {
 		onMarkerZoom: mapHook[3]
 	}
 
+	const [frame, setFrame] = useState(0);
+	const [duration, setDuration] = useState(1);
+
+	const maxFrame = 1050;
+	const time_per_frame = 1000 * 60 * duration / maxFrame;
+
 	useEffect(() => {
 		setFrame(0);
 	}, [indKey]);
-
-	const [frame, setFrame] = useState(1000);
-
-	const [duration, setDuration] = useState(1);
-
-	const maxFrame = 1051;
-	const time_per_frame = 1000 * 60 * duration / maxFrame;
 
 	useEffect(() => {
 		const interval = setInterval(() => {
@@ -1229,21 +1280,34 @@ function ResultTabPane(props) {
 		return () => clearInterval(interval);
 	}, [play]);
 
+	const toggleFrame = (e) => {
+		const { value } = e.target;
+		setFrame(+value);
+	}
+
 	return (
 		<div className="w-100 h-100" style={{ display: "flex" }}>
 			<div className="w-100 h-100" style={{ flex: .2, display: "flex", flexDirection: "column" }}>
-				<div className={"g_center"} style={{ flex: .2 }}>
+				<div className={"g_center"} style={{ flex: .3, display: "flex", flexDirection: "column" }}>
+					<div className={"fs-2 fw-bold"}>
+						{DateTime.fromObject({ hour: 6 + Math.floor(frame / 60), minute: frame % 60 }).toFormat("hh:mm")}
+					</div>
 					<PlayBtn flag={play} onClick={togglePlay} />
-
+					<div className={"fw-bold fs-2"}>Frame {frame}</div>
+					<div style={{ padding: "0px 10px" }}>
+						<input type={"range"}
+							value={frame} onChange={toggleFrame}
+							min={0} max={maxFrame} step={1} />
+					</div>
 				</div>
 				<div className={"g_center"}
-					style={{ flex: .8, padding: 10 }}>
+					style={{ flex: .7, padding: 10 }}>
 					<div className={"w-100 h-100"} style={{ display: "flex", flexDirection: "column", borderWidth: 3, borderStyle: "solid", padding: 10 }}>
 						<div className={"g_center"} style={{ flex: .1 }}>
 							<div className={"fw-bold fs-2"}>Result</div>
 						</div>
-						<div style={{ flex: .9 }}>
-							<div className={"fw-bold fs-2"}>Frame {frame}</div>
+						<div style={{ flex: .9, display: "flex", flexDirection: "column" }}>
+							<ResultExpense data={resData[indKey]["expenses"]} />
 						</div>
 					</div>
 				</div>
