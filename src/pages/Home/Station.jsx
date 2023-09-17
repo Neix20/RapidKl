@@ -5,6 +5,9 @@ import { Logger, Utility } from "@utility";
 import { Images } from "@config";
 import "@config/globalStyles.css";
 
+import { WqModalBtn } from "@components";
+import { useToggle } from "@hooks";
+
 function StationNodeSdInputSlider(props) {
 
     // #region Props
@@ -174,16 +177,14 @@ function StationNodeSd(props) {
 function StationInput(props) {
 
     const { station, toggleStation = () => { } } = props;
-    const { onRemoveStation = () => { }, onShowMap = () => { } } = props;
+    const { onMakeStationHub = () => { }, onRemoveStation = () => { }, onShowMap = () => { } } = props;
 
     const { is_hub, ride_zone, lat, lng, name } = station;
+
     const rideZoneLs = Utility.genRideZone();
+    const colorLs = Utility.genRideZoneColor();
 
     // #region Helper
-    const toggleStationHub = (e) => {
-        const { is_hub } = station;
-        toggleStation("is_hub", !is_hub);
-    }
 
     const toggleStationForm = (e) => {
         const { name, value } = e.target;
@@ -237,7 +238,7 @@ function StationInput(props) {
                     style={{
                         justifyContent: "space-between",
                         columnGap: 10,
-                        maxWidth: 360,
+                        maxWidth: 240,
                         width: "50%",
                     }}>
                     <div
@@ -260,7 +261,7 @@ function StationInput(props) {
                     style={{
                         justifyContent: "space-between",
                         columnGap: 10,
-                        maxWidth: 360,
+                        maxWidth: 240,
                         width: "50%",
                     }}>
                     <div
@@ -285,7 +286,7 @@ function StationInput(props) {
                 style={{
                     justifyContent: "space-between",
                     columnGap: 10,
-                    maxWidth: 360,
+                    maxWidth: 240,
                     width: "50%"
                 }}>
                 <div
@@ -310,7 +311,7 @@ function StationInput(props) {
                 }}>
                 {
                     (!is_hub) ? (
-                        <div onClick={toggleStationHub} className={`btn btn-primary`}>Make Hub</div>
+                        <div onClick={onMakeStationHub} className={`btn btn-primary`}>Make Hub</div>
                     ) : (
                         <></>
                     )
@@ -324,30 +325,38 @@ function StationInput(props) {
 
 function StationNode(props) {
 
-    const init = {
-        station: {
-            name: "Station 1",
-            is_hub: true,
-            ride_zone: 1,
-            lat: 15,
-            lng: 15,
-            estimated_time_to_next_station: 2,
-            distance_to_next_station: 500,
-            supply: [],
-            demand: [],
-        }
-    };
+    // #region Props
+    const { station, UpdateStation = () => { }, DeleteStation = () => { }, MakeStationHub = () => { } } = props;
+    const {  mapRef, setMapRef, onMapLoad, onMarkerZoom } = props;
+    const { toggleModal = () => {} } = props;
+    const { selPos, setSelPos } = props;
+    // #endregion
 
-    const [station, setStation] = useState(init.station);
-
-    const color = Utility.genRideZoneColor();
-    const { is_hub, ride_zone } = station;
+    const { is_hub, ride_zone, color } = station;
 
     // #region Helper
+    const setStation = (obj) => {
+        UpdateStation(obj);
+    }
+
     const toggleStation = (name, val) => {
         let obj = { ...station };
         obj[name] = val;
         setStation(obj);
+    }
+
+    const RemoveStation = () => {
+        DeleteStation(selPos);
+        setSelPos(0);
+    }
+
+    const onMakeStationHub = () => {
+        MakeStationHub(station);
+    }
+
+    const onShowMap = () => {
+        toggleModal();
+        onMarkerZoom(station);
     }
     // #endregion
 
@@ -365,7 +374,7 @@ function StationNode(props) {
                             borderStyle: "solid",
                             borderRadius: 15,
                             padding: 10,
-                            borderColor: color[ride_zone]
+                            borderColor: color
                         }} alt={"Station"} />
                 </div>
                 <div style={{ width: "80%" }}>
@@ -373,8 +382,9 @@ function StationNode(props) {
                     <StationInput
                         station={station}
                         toggleStation={toggleStation}
-                        onRemoveStation={() => { }}
-                        onShowMap={() => { }} />
+                        onMakeStationHub={onMakeStationHub}
+                        onRemoveStation={RemoveStation}
+                        onShowMap={onShowMap} />
                 </div>
             </div>
 
@@ -384,4 +394,111 @@ function StationNode(props) {
     )
 }
 
-export default StationNode;
+function StationTitle(props) {
+    const { color, is_hub, name } = props;
+    const { onSelect = () => { } } = props;
+    return (
+        <div onClick={onSelect}
+            className={"btn btn-light w-90"}
+            style={{
+                maxWidth: 120,
+                minHeight: 48,
+                fontSize: 12,
+                borderWidth: 3,
+                borderStyle: "solid",
+                borderColor: color,
+                color: is_hub ? "#F00" : "#00F"
+            }}>
+            {name}
+        </div>
+    )
+}
+
+function Index(props) {
+
+    const { stationLs } = props;
+
+    const [selPos, setSelPos] = useState(0);
+    const modalHook = useToggle(false);
+
+    const modalObj = {
+        showModal: modalHook[0], 
+        setShowModal: modalHook[1], 
+        toggleModal: modalHook[2]
+    }
+
+
+    const renderStationItem = (item, index) => {
+        const onSelect = () => setSelPos(index);
+        return (<StationTitle key={index}
+            onSelect={onSelect}
+            {...item} />)
+    }
+
+    if (stationLs.length == 0) {
+        return (
+            <div
+                className="btn btn-info w-100 h-100 g_center disabled"
+                style={{ columnGap: 10 }}
+            >
+                <div className={"fs-2 fw-bold"}>
+                    Station
+                </div>
+                <i className="fa-solid fa-gas-pump fa-lg"></i>
+            </div>
+        )
+    }
+
+    return (
+        <WqModalBtn {...modalObj}
+            btnChild={
+                <div
+                    className="btn btn-info w-100 h-100 g_center"
+                    style={{ columnGap: 10 }}
+                >
+                    <div className={"fs-2 fw-bold"}>
+                        Station
+                    </div>
+                    <i className="fa-solid fa-gas-pump fa-lg"></i>
+                </div>
+            }
+            mdlChild={
+                <div className="w-100 h-100">
+                    <div className={"g_center"} style={{ height: "10%" }}>
+                        <div className={"fs-2 fw-bold"}>
+                            Station
+                        </div>
+                    </div>
+                    <div className={"w-100"}
+                        style={{
+                            display: "flex",
+                            height: "90%"
+                        }}>
+                        <div style={{
+                            flex: .2,
+                            display: "flex",
+                            flexDirection: "column",
+                            rowGap: 10,
+                            alignItems: "center"
+                        }}>
+                            {stationLs.map(renderStationItem)}
+                        </div>
+                        <div style={{
+                            flex: .8,
+                            overflowY: "auto",
+                            padding: 10
+                        }}>
+                            <StationNode
+                                selPos={selPos} setSelPos={setSelPos}
+                                station={stationLs[selPos]} 
+                                {...modalObj}
+                                {...props} />
+                        </div>
+                    </div>
+                </div>
+            }
+        />
+    )
+}
+
+export default Index;

@@ -11,13 +11,7 @@ function Index(props) {
 	const { btnStyle = {}, mdlStyle = {} } = props;
 	// #endregion
 
-	// #region UseState
-	const [showModal, setShowModal] = useState(false);
-	// #endregion
-
-	// #region Helper
-	const toggleModal = () => setShowModal((val) => !val);
-	// #endregion
+	const { showModal, setShowModal = () => {}, toggleModal = () => {} } = props;
 
 	const styles = {
 		modal: {

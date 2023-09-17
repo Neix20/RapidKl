@@ -94,6 +94,10 @@ function genRideZoneColor() {
     return arr;
 }
 
+function roundDown(num, base = 1000) {
+    return Math.floor(num - num % base);
+}
+
 export {
     genLogUrl,
     genServerUrl,
@@ -105,5 +109,6 @@ export {
     genHourArr,
     genHourDict,
     genRideZone,
-    genRideZoneColor
+    genRideZoneColor,
+    roundDown
 };

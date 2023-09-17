@@ -15,9 +15,28 @@ const Context = createContext();
 
 import { GoogleMap, Marker, Polyline, useLoadScript } from "@react-google-maps/api";
 
+import WqBus from "./Bus";
+import WqStation from "./Station";
+
 // #region Custom Hooks
 function useStation(value = []) {
 	const [stationLs, setStationLs] = useState(value);
+
+	const color = Utility.genRideZoneColor();
+
+	const MakeStationHub = (item) => {
+		const { pos } = item;
+
+		let arr = [...stationLs];
+
+		for (let ind in arr) {
+			arr[ind].is_hub = false;
+		}
+
+		arr[pos].is_hub = true;
+
+		setStationLs(arr);
+	}
 
 	const AddStation = (lat, lng) => {
 
@@ -30,10 +49,16 @@ function useStation(value = []) {
 			lat: lat,
 			lng: lng,
 			is_hub: is_hub,
-			pos: arr.length
+			pos: arr.length,
+			ride_zone: 1,
+			color: color[0]
 		};
 
 		arr.push(obj);
+
+		for (let ind in arr) {
+			arr[ind].pos = ind;
+		}
 
 		setStationLs(arr);
 	}
@@ -45,23 +70,37 @@ function useStation(value = []) {
 			arr.splice(ind, 1);
 		}
 
+		for (let ind in arr) {
+			arr[ind].pos = ind;
+		}
+
+		if (arr.length > 0) {
+			arr[0].is_hub = true;
+		}
+
 		setStationLs(arr);
 	}
 
 	const UpdateStation = (item) => {
-		const { pos } = item;
+		const { pos, ride_zone = 1 } = item;
 		let arr = [...stationLs];
-		arr[pos] = item;
+
+		let obj = {
+			...item,
+			color: color[ride_zone - 1]
+		}
+
+		arr[pos] = obj;
 		setStationLs(arr);
 	}
 
-	return [stationLs, setStationLs, AddStation, DeleteStation, UpdateStation];
+	return [stationLs, setStationLs, AddStation, DeleteStation, UpdateStation, MakeStationHub];
 }
 
 function useDirection(value = null) {
 	const [direction, setDirection] = useState(value);
 
-	const GenRoute = (stationLs, setStationLs = () => {}) => {
+	const GenRoute = async (stationLs) => {
 		let arr = [...stationLs];
 
 		const hub_station = arr.filter(obj => obj.is_hub)[0];
@@ -78,7 +117,7 @@ function useDirection(value = null) {
 			));
 
 		const directionService = new google.maps.DirectionsService();
-		directionService.route(
+		return new Promise(resolve => directionService.route(
 			{
 				origin: origin,
 				waypoints: wayPt,
@@ -89,16 +128,29 @@ function useDirection(value = null) {
 				if (status === google.maps.DirectionsStatus.OK) {
 					//changing the state of directions to the result of direction service
 
-					const { overview_path } = result.routes[0];
+					const { overview_path, legs } = result.routes[0];
 					setDirection(overview_path);
 
 					let arr = [...stationLs];
-					setStationLs(arr);
 
-					Logger.info({
-						content: result,
-						fileName: "directionRoute"
+					const est_arr = legs.map((obj, ind) => {
+						const { distance: { value: dist }, duration: { value: ts } } = obj;
+						const min = Math.floor(ts / 60);
+
+						let rObj = {
+							estimated_time_to_next_station: min,
+							distance_to_next_station: dist,
+						};
+
+						arr[ind] = {
+							...arr[ind],
+							...rObj
+						}
+
+						return rObj;
 					});
+
+					resolve(arr);
 				} else {
 					Logger.error({
 						content: result,
@@ -106,10 +158,24 @@ function useDirection(value = null) {
 					})
 				}
 			}
-		);
+		));
 	}
 
 	return [direction, setDirection, GenRoute];
+}
+
+function useMap(value = null) {
+	const [mapRef, setMapRef] = useState();
+
+	const onMapLoad = (map) => {
+		setMapRef(map);
+	}
+
+	const onMarkerZoom = ({ lat, lng }) => {
+		mapRef?.panTo({ lat, lng });
+	}
+
+	return [mapRef, setMapRef, onMapLoad, onMarkerZoom];
 }
 // #endregion
 
@@ -212,9 +278,10 @@ function Map(props) {
 
 	// #region Props
 	const { iCoord = { lat: 0, lng: 0 }, setICoord = () => { } } = props;
-	const { direction = null, setDirection = () => {} } = props;
-	const { stationLs = [], setStationLs = () => {} } = props;
-	const { AddStation = () => {}, DeleteStation = () => {} } = props;
+
+	const { direction, setDirection, GenRoute } = props;
+	const { stationLs, setStationLs, AddStation, DeleteStation, UpdateStation, MakeStationHub } = props;
+	const { mapRef, setMapRef, onMapLoad, onMarkerZoom } = props;
 	// #endregion
 
 	// #region Constant
@@ -237,16 +304,14 @@ function Map(props) {
 	};
 	// #endregion
 
-	// #region UseState
-	const [mapRef, setMapRef] = useState();
-	// #endregion
-
+	// #region UseEffect
 	useEffect(() => {
 		const { lat, lng } = iCoord;
 		if (lat != 0 && lng != 0) {
-			zoomTo(iCoord);
+			onMarkerZoom(iCoord);
 		}
 	}, [JSON.stringify(iCoord)]);
+	// #endregion
 
 	// #region Helper
 	const onClick = (e) => {
@@ -257,23 +322,22 @@ function Map(props) {
 
 		AddStation(lat, lon);
 	}
-
-	const onRightClick = (e, ind) => { DeleteStation(ind) }
-	const zoomTo = ({ lat, lng }) => { mapRef?.panTo({ lat, lng }); }
-	const onMapLoad = (map) => { setMapRef(map); }
+	const onRightClick = (e, ind) => { DeleteStation(ind); }
 	// #endregion
 
 	// #region Render
 	const renderItem = (item, index) => {
 
 		const { is_hub } = item;
-		const onClick = () => zoomTo(item);
+		const onClick = () => onMarkerZoom(item);
+		const onRightClick = (e) => onRightClick(e, index + 1);
 
 		const CMarker = (is_hub) ? StationHubMarker : StationMarker;
+
 		return (
 			<CMarker key={index}
 				onClick={onClick}
-				onRightClick={(e) => onRightClick(e, index + 1)}
+				onRightClick={onRightClick}
 				position={{ ...item }}
 			/>
 		)
@@ -294,8 +358,7 @@ function Map(props) {
 			options={mapOption}
 			zoom={15} center={center}
 			onClick={onClick}
-			onLoad={onMapLoad}
-		>
+			onLoad={onMapLoad}>
 			{
 				stationLs.map(renderItem)
 			}
@@ -347,11 +410,6 @@ function Logo(props) {
 			<div>WMQJG</div>
 			<div className={"fst-italic"}>RapidKL</div>
 			<div>Simulator</div>
-			{/* <div style={styles.wordDivStyle}>W</div>
-			<div style={styles.wordDivStyle}>M</div>
-			<div style={styles.wordDivStyle}>Q</div>
-			<div style={styles.wordDivStyle}>J</div>
-			<div style={styles.wordDivStyle}>G</div> */}
 		</div>
 	);
 }
@@ -367,16 +425,39 @@ function ControlPane(props) {
 	};
 	// #endregion
 
-	// #region Context
-	const [loading, setLoading] = useContext(Context);
+	// #region Custom Hooks
+	const stationHook = useStation([]);
+	const stationObj = {
+		stationLs: stationHook[0],
+		setStationLs: stationHook[1],
+		AddStation: stationHook[2],
+		DeleteStation: stationHook[3],
+		UpdateStation: stationHook[4],
+		MakeStationHub: stationHook[5]
+	};
+
+	const directionHook = useDirection(null);
+	const directionObj = {
+		direction: directionHook[0],
+		setDirection: directionHook[1],
+		GenRoute: directionHook[2]
+	}
+
+	const mapHook = useMap(null);
+	const mapObj = {
+		mapRef: mapHook[0],
+		setMapRef: mapHook[1],
+		onMapLoad: mapHook[2],
+		onMarkerZoom: mapHook[3]
+	}
 	// #endregion
 
-	// #region UseState
+	const [loading, setLoading] = useContext(Context);
 	const [coords, setCoords] = useState(init.coord);
 
-	const [stationLs, setStationLs, AddStation, DeleteStation, UpdateStation] = useStation([]);
-	const [direction, setDirection, GenRoute] = useDirection(null);
-	// #endregion
+	const { stationLs, setStationLs } = stationObj;
+	const { direction, setDirection, GenRoute } = directionObj;
+	const { mapRef, setMapRef, onMapLoad, onMarkerZoom } = mapObj;
 
 	// #region Helper
 	const searchQuery = (val) => {
@@ -414,7 +495,21 @@ function ControlPane(props) {
 	}
 
 	const onStart = () => {
-		GenRoute(stationLs, setStationLs);
+		setLoading(true);
+		GenRoute(stationLs)
+			.then(data => {
+				setLoading(false);
+				setStationLs(data);
+				Logger.info({
+					content: data,
+					fileName: "stationFinal",
+				})
+			}).catch(err => {
+				setLoading(false);
+				Logger.error({
+					content: "An Error has Occured!"
+				})
+			});
 	}
 	// #endregion
 
@@ -464,42 +559,8 @@ function ControlPane(props) {
 							rowGap: 10
 						}}
 					>
-						<WqModalBtn
-							btnChild={
-								<div
-									className="btn btn-primary w-100 h-100 g_center"
-									style={{ columnGap: 10 }}
-								>
-									<div className={"fs-2 fw-bold"}>Buses</div>
-									<i className="fa-solid fa-bus fa-lg"></i>
-								</div>
-							}
-							mdlChild={
-								<div className={"g_center"}>
-									<div className={"fs-2 fw-bold"}>Buses</div>
-								</div>
-							}
-						/>
-						<WqModalBtn
-							btnChild={
-								<div
-									className="btn btn-info w-100 h-100 g_center"
-									style={{ columnGap: 10 }}
-								>
-									<div className={"fs-2 fw-bold"}>
-										Station
-									</div>
-									<i className="fa-solid fa-gas-pump fa-lg"></i>
-								</div>
-							}
-							mdlChild={
-								<div className={"g_center"}>
-									<div className={"fs-2 fw-bold"}>
-										Station
-									</div>
-								</div>
-							}
-						/>
+						<WqBus />
+						<WqStation {...stationObj} {...mapObj} />
 						<WqModalBtn
 							btnChild={
 								<div
@@ -545,13 +606,10 @@ function ControlPane(props) {
 							<Search searchQuery={searchQuery} />
 						</div>
 						<div className={"w-100 h-100"}>
-							<Map 
-								iCoord={coords} setICoord={setCoords} 
-								direction={direction} setDirection={setDirection}
-								stationLs={stationLs} setStationLs={setStationLs}
-								AddStation={AddStation} DeleteStation={DeleteStation} 
-								UpdateStation={UpdateStation}	
-								/>
+							<Map
+								iCoord={coords} setICoord={setCoords}
+								{...directionObj} {...stationObj} {...mapObj}
+							/>
 						</div>
 					</div>
 				</div>
@@ -673,15 +731,8 @@ function ResultPane(props) {
 
 function Index(props) {
 
-	// #region UseState
-	const [loading, setLoading] = useState(false);
-	const [resultFlag, setResultFlag] = useState(false);
-	// #endregion
-
-	// #region Helper
-	const toggleLoading = () => setLoading((val) => !val);
-	const toggleResultFlag = () => setResultFlag((val) => !val);
-	// #endregion
+	const [loading, setLoading, toggleLoading] = useToggle(false);
+	const [resultFlag, setResultFlag, toggleResultFlag] = useToggle(false);
 
 	return (
 		<Context.Provider value={[loading, setLoading]}>

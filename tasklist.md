@@ -9,8 +9,8 @@
       - [x] Get Time
   - [x] Put Bus Marker
     - [ ] Bus Animation Between Station
-- [ ] Control Panel
-- [ ] Select Start, Then Submit
+- [x] Control Panel
+- [x] Select Start, Then Submit
 
 #### 20230916
 - [ ] General
@@ -19,4 +19,15 @@
   - [x] Input Range
   - [x] Input Date Time
 - [ ] Bus Node
-- [ ] Station Node
+- [x] Station Node
+
+
+#### 20230917
+- [ ] Bus Node
+- [ ] File Upload Api
+- [ ] Operational Cost
+
+- [ ] Server Hosting
+
+- [ ] Map Popup (Use Info Window)
+- [ ] Bus Animations
