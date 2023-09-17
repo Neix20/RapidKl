@@ -422,7 +422,8 @@ function StationResMarker(props) {
 
 function BusColorResMarker(props) {
 
-	const { onClick = () => { }, name, initial = false } = props;
+	const { onClick = () => { }, initial = false } = props;
+	const { name, current_occupants, current_state, destination, progress, total_distance_travelled, total_passangers_transported, lat, lng } = props;
 
 	const [showModal, setShowModal, toggleModal] = useToggle(initial);
 
@@ -436,7 +437,42 @@ function BusColorResMarker(props) {
 			onClick={cusClick}>
 			{
 				(showModal) ? (
-					<InfoWindow><span>{name}</span></InfoWindow>
+					<InfoWindow>
+						<div style={{ display: "flex", flexDirection: "column", width: 400 }}>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Name</div>
+								<div>{name}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Current Occupants</div>
+								<div>{current_occupants}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>State</div>
+								<div>{current_state}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Destination Station</div>
+								<div>{destination}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Total Distance</div>
+								<div>{total_distance_travelled}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Total Passengers</div>
+								<div>{total_passangers_transported}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Latitude</div>
+								<div>{lat}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Longitude</div>
+								<div>{lng}</div>
+							</div>
+						</div>
+					</InfoWindow>
 				) : (
 					<></>
 				)
@@ -1195,47 +1231,41 @@ function ResultExpense(props) {
 	const { data = {} } = props;
 	const { driver_expenses, fares_revenue, fuel_expenses, net_profit, other_expenses, passangers_missed, passangers_transported, total_expenses, total_profit } = data;
 
-	const style = {
-		txtDivStyle: {
-			display: "flex",
-		}
-	}
-
 	return (
 		<>
-			<div className={"g_center"} style={{ justifyContent: "space-between"}}>
+			<div className={"g_center"} style={{ justifyContent: "space-between" }}>
 				<div className={"fw-bold fs-6"}>Driver Expenses</div>
 				<div className={"fs-6"}>{driver_expenses}</div>
 			</div>
-			<div className={"g_center"} style={{ justifyContent: "space-between"}}>
+			<div className={"g_center"} style={{ justifyContent: "space-between" }}>
 				<div className={"fw-bold fs-6"}>Fares Revenue</div>
 				<div className={"fs-6"}>{fares_revenue}</div>
 			</div>
-			<div className={"g_center"} style={{ justifyContent: "space-between"}}>
+			<div className={"g_center"} style={{ justifyContent: "space-between" }}>
 				<div className={"fw-bold fs-6"}>Fuel Expenses</div>
 				<div className={"fs-6"}>{fuel_expenses}</div>
 			</div>
-			<div className={"g_center"} style={{ justifyContent: "space-between"}}>
+			<div className={"g_center"} style={{ justifyContent: "space-between" }}>
 				<div className={"fw-bold fs-6"}>Net Profit</div>
 				<div className={"fs-6"}>{net_profit}</div>
 			</div>
-			<div className={"g_center"} style={{ justifyContent: "space-between"}}>
+			<div className={"g_center"} style={{ justifyContent: "space-between" }}>
 				<div className={"fw-bold fs-6"}>Other Expenses</div>
 				<div className={"fs-6"}>{other_expenses}</div>
 			</div>
-			<div className={"g_center"} style={{ justifyContent: "space-between"}}>
+			<div className={"g_center"} style={{ justifyContent: "space-between" }}>
 				<div className={"fw-bold fs-6"}>Passenger Missed</div>
 				<div className={"fs-6"}>{passangers_missed}</div>
 			</div>
-			<div className={"g_center"} style={{ justifyContent: "space-between"}}>
+			<div className={"g_center"} style={{ justifyContent: "space-between" }}>
 				<div className={"fw-bold fs-6"}>Passenger Transported</div>
 				<div className={"fs-6"}>{passangers_transported}</div>
 			</div>
-			<div className={"g_center"} style={{ justifyContent: "space-between"}}>
+			<div className={"g_center"} style={{ justifyContent: "space-between" }}>
 				<div className={"fw-bold fs-6"}>Total Expenses</div>
 				<div className={"fs-6"}>{total_expenses}</div>
 			</div>
-			<div className={"g_center"} style={{ justifyContent: "space-between"}}>
+			<div className={"g_center"} style={{ justifyContent: "space-between" }}>
 				<div className={"fw-bold fs-6"}>Total Profit</div>
 				<div className={"fs-6"}>{total_profit}</div>
 			</div>
