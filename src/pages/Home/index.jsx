@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useContext, createContext } from "
 
 import { Logger, Utility } from "@utility";
 
-import { googleApiKey, Images } from "@config";
+import { googleApiKey, Images, SampleData, SampleDirection } from "@config";
 
 import "@config/globalStyles.css";
 
@@ -15,7 +15,7 @@ import { DateTime } from "luxon";
 
 const Context = createContext();
 
-import { GoogleMap, Marker, Polyline, useLoadScript } from "@react-google-maps/api";
+import { GoogleMap, Marker, Polyline, InfoWindow, useLoadScript } from "@react-google-maps/api";
 
 import WqBus from "./Bus";
 import WqStation from "./Station";
@@ -24,6 +24,14 @@ import WqExpenses from "./Expenses";
 // #region Custom Hooks
 function useBus(value = []) {
 	const [busLs, setBusLs] = useState(value);
+
+	useEffect(() => {
+		let arr = [...busLs];
+		for (let ind in arr) {
+			arr[ind].pos = ind;
+		}
+		setBusLs(arr);
+	}, [])
 
 	const AddBus = (lat = 3.140853, lng = 101.693207) => {
 		let arr = [...busLs];
@@ -86,6 +94,18 @@ function useStation(value = []) {
 
 	const color = Utility.genRideZoneColor();
 
+	useEffect(() => {
+		let arr = [...stationLs];
+
+		for (let ind in arr) {
+			const { ride_zone } = arr[ind];
+			arr[ind].pos = ind;
+			arr[ind].color = color[ride_zone];
+		}
+
+		setStationLs(arr);
+	}, []);
+
 	const MakeStationHub = (item) => {
 		const { pos } = item;
 
@@ -109,7 +129,7 @@ function useStation(value = []) {
 		let supply_arr = [];
 		let demand_arr = [];
 
-		for(let ind = 6; ind <= 23; ind += 1) {
+		for (let ind = 6; ind <= 23; ind += 1) {
 			supply_arr.push(1);
 			demand_arr.push(1);
 		}
@@ -181,7 +201,7 @@ function useExpense(value = {}) {
 	const init = {
 		expense: {
 			"fuel_price": 10,
-            "driver_daily_salary": 10,
+			"driver_daily_salary": 10,
 			"fare_matrix": rideZoneMat,
 			"other_fees": 10,
 			...value,
@@ -226,6 +246,11 @@ function useDirection(value = null) {
 
 					const { overview_path, legs } = result.routes[0];
 					setDirection(overview_path);
+
+					Logger.info({
+						content: overview_path,
+						fileName: "direction"
+					})
 
 					let arr = [...stationLs];
 
@@ -273,35 +298,79 @@ function useMap() {
 // #endregion
 
 // #region Map Icons
+
 function StationHubMarker(props) {
+
+	const { onClick = () => { }, name } = props;
+
+	const [showModal, setShowModal, toggleModal] = useToggle(false);
+
+	const cusClick = () => {
+		onClick();
+		toggleModal();
+	}
+
 	return (
-		<Marker
-			icon={"https://neix.s3.amazonaws.com/wqRklHub.png"}
-			{...props} />
+		<Marker icon={"https://neix.s3.amazonaws.com/wqRklHub.png"} {...props}
+			onClick={cusClick}>
+			{
+				(showModal) ? (
+					<InfoWindow><span>{name}</span></InfoWindow>
+				) : (
+					<></>
+				)
+			}
+		</Marker>
 	)
 }
 
 function StationMarker(props) {
-	return (
-		<Marker
-			icon={"https://neix.s3.amazonaws.com/wqRklStation.png"}
-			{...props} />
-	)
-}
 
-function BusMarker(props) {
+	const { onClick = () => { }, name } = props;
+
+	const [showModal, setShowModal, toggleModal] = useToggle(false);
+
+	const cusClick = () => {
+		onClick();
+		toggleModal();
+	}
+
 	return (
-		<Marker
-			icon={"http://maps.google.com/mapfiles/ms/icons/blue-dot.png"}
-			{...props} />
+		<Marker icon={"https://neix.s3.amazonaws.com/wqRklStation.png"} {...props}
+			onClick={cusClick}>
+			{
+				(showModal) ? (
+					<InfoWindow><span>{name}</span></InfoWindow>
+				) : (
+					<></>
+				)
+			}
+		</Marker>
 	)
 }
 
 function BusColorMarker(props) {
+
+	const { onClick = () => { }, name } = props;
+
+	const [showModal, setShowModal, toggleModal] = useToggle(false);
+
+	const cusClick = () => {
+		onClick();
+		toggleModal();
+	}
+
 	return (
-		<Marker
-			icon={"https://neix.s3.amazonaws.com/bus_color.png"}
-			{...props} />
+		<Marker icon={"https://neix.s3.amazonaws.com/bus_color.png"} {...props}
+			onClick={cusClick}>
+			{
+				(showModal) ? (
+					<InfoWindow><span>{name}</span></InfoWindow>
+				) : (
+					<></>
+				)
+			}
+		</Marker>
 	)
 }
 // #endregion
@@ -451,6 +520,7 @@ function Map(props) {
 				onClick={onClick}
 				onRightClick={onRightClick}
 				position={item}
+				{...item}
 			/>
 		)
 	}
@@ -464,6 +534,7 @@ function Map(props) {
 				onClick={onClick}
 				onRightClick={onRightClick}
 				position={item}
+				{...item}
 			/>
 		)
 	}
@@ -595,14 +666,16 @@ function ControlPane(props) {
 	// #region Init
 	const init = {
 		coord: {
-			lat: 3.140853,
-			lng: 101.693207,
+			lat: 3.1720151676225,
+			lng: 101.69593158369
 		},
 	};
+
+	const { stations_info = [], buses_info = [], other_panel_info = [] } = SampleData;
 	// #endregion
 
 	// #region Custom Hooks
-	const stationHook = useStation([]);
+	const stationHook = useStation(stations_info);
 	const stationObj = {
 		stationLs: stationHook[0],
 		setStationLs: stationHook[1],
@@ -612,7 +685,7 @@ function ControlPane(props) {
 		MakeStationHub: stationHook[5]
 	};
 
-	const directionHook = useDirection(null);
+	const directionHook = useDirection(SampleDirection);
 	const directionObj = {
 		direction: directionHook[0],
 		setDirection: directionHook[1],
@@ -627,7 +700,7 @@ function ControlPane(props) {
 		onMarkerZoom: mapHook[3]
 	}
 
-	const busHook = useBus([]);
+	const busHook = useBus(buses_info);
 	const busObj = {
 		busLs: busHook[0],
 		setBusLs: busHook[1],
@@ -636,7 +709,7 @@ function ControlPane(props) {
 		DeleteBus: busHook[4]
 	}
 
-	const expenseHook = useExpense({});
+	const expenseHook = useExpense(other_panel_info);
 	const expenseObj = {
 		expense: expenseHook[0],
 		setExpense: expenseHook[1]
@@ -744,16 +817,16 @@ function ControlPane(props) {
 			param: final,
 			onSetLoading: setLoading,
 		})
-		.then(data => {
-			Logger.info({
-				content: data,
-				fileName: "rapidKlOutput"
-			});
-		})
-		.catch(err => {
-			setLoading(false);
-			console.log(`Error: ${err}`)
-		})
+			.then(data => {
+				Logger.info({
+					content: data,
+					fileName: "rapidKlOutput"
+				});
+			})
+			.catch(err => {
+				setLoading(false);
+				console.log(`Error: ${err}`)
+			})
 
 	}
 	// #endregion

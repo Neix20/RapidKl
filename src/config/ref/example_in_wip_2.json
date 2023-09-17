@@ -1,0 +1,290 @@
+{
+    "stations_info": [
+        {
+            "name": "1000968 - KL1818 HAB TITIWANGSA",
+            "estimated_time_to_next_station": 1,
+            "distance_to_next_station": 1600,
+            "supply": [7, 6, 3, 8, 0, 0, 8, 1, 0, 7, 1, 4, 1, 0, 0, 1, 0, 0],
+            "demand": [0, 0, 2, 0, 0, 1, 2, 1, 1, 0, 3, 12, 7, 9, 2, 1, 11, 1],
+            "is_hub": true,
+            "ride_zone": 1,
+            "latlong": [3.1720151676225, 101.69593158369]
+        },
+        {
+            "name": "1002414 - KL2249 PERKIM",
+            "estimated_time_to_next_station": 1,
+            "distance_to_next_station": 230,
+            "supply": [10, 37, 9, 2, 3, 3, 0, 0, 0, 0, 2, 11, 0, 0, 0, 0, 0, 0],
+            "demand": [0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.171261, 101.693485]
+        },
+        {
+            "name": "1000514 - KL50 DAMAI HOSPITAL",
+            "estimated_time_to_next_station": 1,
+            "distance_to_next_station": 350,
+            "supply": [0, 0, 12, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "demand": [0, 0, 14, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.169987, 101.695148]
+        },
+        {
+            "name": "1003247 - KL52 MONORAIL CHOWKIT",
+            "estimated_time_to_next_station": 1,
+            "distance_to_next_station": 230,
+            "supply": [9, 3, 2, 5, 0, 1, 0, 0, 1, 0, 0, 1, 6, 3, 0, 1, 0, 0],
+            "demand": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.167932, 101.697641]
+        },
+        {
+            "name": "1002104 - KL57 NS PENYELIDIKAN PERUBATAN",
+            "estimated_time_to_next_station": 2,
+            "distance_to_next_station": 550,
+            "supply": [11, 5, 1, 3, 6, 3, 3, 0, 3, 1, 0, 0, 4, 0, 3, 2, 0, 0],
+            "demand": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.1676749834573, 101.69936041071]
+        },
+        {
+            "name": "1004138 - KL58 MEDAN SELERA",
+            "estimated_time_to_next_station": 2,
+            "distance_to_next_station": 350,
+            "supply": [0, 3, 3, 0, 0, 0, 0, 0, 0, 1, 0, 4, 0, 1, 0, 0, 0, 0],
+            "demand": [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.168009, 101.704354]
+        },
+        {
+            "name": "1003643 - KL59 SK JLN RAJA MUDA",
+            "estimated_time_to_next_station": 10,
+            "distance_to_next_station": 160,
+            "supply": [1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "demand": [2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.167985, 101.707342]
+        },
+        {
+            "name": "1004274 - KL60 YAYASAN SELANGOR",
+            "estimated_time_to_next_station": 1,
+            "distance_to_next_station": 170,
+            "supply": [2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "demand": [5, 1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 0, 0, 0],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.168012, 101.708793]
+        },
+        {
+            "name": "1002016 - KL61 SETIA SKY RESIDENCE",
+            "estimated_time_to_next_station": 1,
+            "distance_to_next_station": 550,
+            "supply": [0, 0, 3, 1, 0, 0, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+            "demand": [1, 2, 0, 0, 4, 0, 1, 1, 0, 0, 0, 2, 0, 0, 0, 1, 0, 0],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.168117, 101.710298]
+        },
+        {
+            "name": "1000758 - KL1943 FLAT PKNS (OPP)",
+            "estimated_time_to_next_station": 1,
+            "distance_to_next_station": 750,
+            "supply": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "demand": [0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.166433, 101.714857]
+        },
+        {
+            "name": "1004279 - KL1949 INTERMARK MALL",
+            "estimated_time_to_next_station": 2,
+            "distance_to_next_station": 550,
+            "supply": [0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 4, 1, 0, 0, 0, 0],
+            "demand": [1, 1, 1, 3, 0, 0, 0, 3, 0, 1, 0, 0, 5, 0, 0, 0, 0, 0],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.161832, 101.719627]
+        },
+        {
+            "name": "1000492 - KL91 CITIBANK / INTERCONTINENTAL HOTEL",
+            "estimated_time_to_next_station": 1,
+            "distance_to_next_station": 170,
+            "supply": [0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 4, 0, 0, 0, 0],
+            "demand": [2, 3, 3, 7, 0, 2, 0, 2, 0, 1, 1, 0, 4, 0, 0, 0, 0, 0],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.1602776153032, 101.71730268036]
+        },
+        {
+            "name": "1002014 - KL93 MENARA ATLAN",
+            "estimated_time_to_next_station": 2,
+            "distance_to_next_station": 450,
+            "supply": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+            "demand": [3, 3, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.159962, 101.715857]
+        },
+        {
+            "name": "1001518 - KL94 KLCC (UTARA)",
+            "estimated_time_to_next_station": 1,
+            "distance_to_next_station": 400,
+            "supply": [
+                5, 5, 1, 2, 3, 1, 5, 10, 2, 5, 10, 0, 14, 11, 6, 3, 14, 3
+            ],
+            "demand": [16, 6, 9, 12, 4, 6, 4, 3, 2, 3, 8, 0, 1, 4, 0, 4, 0, 0],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.158876, 101.712331]
+        },
+        {
+            "name": "1000077 - KL96 MENARA AMBANK",
+            "estimated_time_to_next_station": 1,
+            "distance_to_next_station": 300,
+            "supply": [0, 0, 3, 0, 0, 0, 0, 0, 0, 2, 0, 2, 4, 0, 0, 0, 0, 0],
+            "demand": [1, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.1607922350002, 101.71098241514]
+        },
+        {
+            "name": "1002764 - KL1945 MENARA PTPTN",
+            "estimated_time_to_next_station": 3,
+            "distance_to_next_station": 700,
+            "supply": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0],
+            "demand": [0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.162313, 101.713241]
+        },
+        {
+            "name": "1000757 - KL1948 FLAT PKNS",
+            "estimated_time_to_next_station": 2,
+            "distance_to_next_station": 500,
+            "supply": [0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0],
+            "demand": [0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.1661583681554, 101.71454310215]
+        },
+        {
+            "name": "1002484 - KL62 SETIA SKY RESIDENCE (OPP)",
+            "estimated_time_to_next_station": 2,
+            "distance_to_next_station": 260,
+            "supply": [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "demand": [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 1, 0, 0, 0],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.167926, 101.711238]
+        },
+        {
+            "name": "1004273 - KL63 YAYASAN SELANGOR (OPP)",
+            "estimated_time_to_next_station": 1,
+            "distance_to_next_station": 260,
+            "supply": [0, 0, 2, 0, 1, 1, 0, 0, 0, 0, 2, 0, 0, 5, 0, 0, 0, 0],
+            "demand": [0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 5, 0, 0, 0],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.1678324523453, 101.70881962425]
+        },
+        {
+            "name": "1003642 - KL64 SK JLN RAJA MUDA (OPP)",
+            "estimated_time_to_next_station": 1,
+            "distance_to_next_station": 220,
+            "supply": [0, 0, 8, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+            "demand": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.167832, 101.706461]
+        },
+        {
+            "name": "1000945 - KL65 MENARA ARINA UNITI",
+            "estimated_time_to_next_station": 1,
+            "distance_to_next_station": 550,
+            "supply": [0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+            "demand": [0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 0, 2, 2, 1, 0, 0, 0, 1],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.1678637715982, 101.70450734947]
+        },
+        {
+            "name": "1000946 - KL66 HOTEL PUTRA MUDA",
+            "estimated_time_to_next_station": 1,
+            "distance_to_next_station": 1000,
+            "supply": [0, 0, 0, 0, 0, 0, 0, 3, 1, 0, 0, 4, 1, 0, 0, 0, 0, 0],
+            "demand": [4, 0, 10, 2, 4, 4, 0, 3, 4, 3, 4, 7, 7, 6, 3, 1, 4, 0],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.1674947470273, 101.6995491578]
+        },
+        {
+            "name": "1000887 - KL53 GRAND SEASONS HOTEL",
+            "estimated_time_to_next_station": 2,
+            "distance_to_next_station": 290,
+            "supply": [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "demand": [0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 2, 3, 3, 2, 0, 0, 1],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.1701675672584, 101.69824199219]
+        },
+        {
+            "name": "1000915 - KL59 HKL (OPP)",
+            "estimated_time_to_next_station": 3,
+            "distance_to_next_station": 700,
+            "supply": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "demand": [0, 0, 2, 0, 0, 0, 0, 4, 1, 0, 2, 3, 0, 3, 0, 0, 0, 0],
+            "is_hub": false,
+            "ride_zone": 1,
+            "latlong": [3.1727016599494, 101.69894622509]
+        }
+    ],
+    "buses_info": [
+        {
+            "name": "NR09G20465 - WUU6742",
+            "driver": "Driver 1",
+            "max_occupants": 50,
+            "starting_time": 30,
+            "fuel_consumption_per_km": 0.41,
+            "major_break": 0,
+            "latlong": [3.1720151676225, 101.69593158369]
+        },
+        {
+            "name": "NR09G20549 - WVA4371",
+            "driver": "Driver 2",
+            "max_occupants": 50,
+            "starting_time": 0,
+            "fuel_consumption_per_km": 0.41,
+            "major_break": 0,
+            "latlong": [3.1720151676225, 101.69593158369]
+        },
+        {
+            "name": "NR09G20695 - WUY9534",
+            "driver": "Driver 3",
+            "max_occupants": 50,
+            "starting_time": 60,
+            "fuel_consumption_per_km": 0.41,
+            "major_break": 1,
+            "latlong": [3.1720151676225, 101.69593158369]
+        }
+    ],
+    "other_panel_info": {
+        "fuel_price": 2.15,
+        "driver_daily_salary": 80,
+        "fare_matrix": [
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+        "other_fees": 100
+    }
+}

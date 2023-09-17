@@ -24,14 +24,14 @@
 
 #### 20230917
 - [x] Bus Node
-- [ ] Station Info
-- [ ] Operational Cost
-- [ ] Map Popup (Use Info Window)
+- [x] Station Info
+- [x] Operational Cost
+- [x] Map Popup (Use Info Window)
 
 - [ ] File Upload Api
 
 - [x] Server Hosting
-- [ ] Initial Load Data
+- [x] Initial Load Data
 - [ ] Output Animation Data
 
 - [ ] Bus Animations

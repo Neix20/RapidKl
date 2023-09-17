@@ -384,7 +384,6 @@ function StationTitle(props) {
             className={"btn btn-light w-90"}
             style={{
                 // maxWidth: 120,
-                minHeight: 48,
                 fontSize: 18,
                 borderWidth: 3,
                 borderStyle: "solid",
@@ -456,18 +455,19 @@ function Index(props) {
                             height: "90%"
                         }}>
                         <div style={{
-                            flex: .15,
+                            flex: .2,
                             display: "flex",
                             flexDirection: "column",
                             rowGap: 10,
-                            alignItems: "center"
+                            alignItems: "center",
+                            overflowY: "auto",
                         }}>
                             {stationLs.map(renderStationItem)}
                         </div>
                         <div style={{
-                            flex: .85,
+                            flex: .8,
+                            padding: 10,
                             overflowY: "auto",
-                            padding: 10
                         }}>
                             <StationNode
                                 selPos={selPos} setSelPos={setSelPos}

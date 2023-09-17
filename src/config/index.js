@@ -5,6 +5,9 @@ import Animation from "./animation";
 
 import googleApi from "./auth/googleApi.json";
 
+import SampleData from "./ref/sample.json";
+import SampleDirection from "./ref/direction.json";
+
 const { apiKey: googleApiKey } = googleApi;
 
 export { 
@@ -12,4 +15,6 @@ export {
     googleApiKey,
     Images,
     Animation,
+    SampleData,
+    SampleDirection
 };
