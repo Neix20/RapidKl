@@ -8,45 +8,82 @@ import { useToggle } from "@hooks";
 
 import { WqLoadingModal, WqModalBtn } from "@components";
 
-import Bus from "./../Home/Bus";
+function PlayBtn(props) {
+	const { flag = false, onClick = () => { } } = props;
+
+	if (flag) {
+		return (
+			<div onClick={onClick}
+				className="btn btn-warning g_center"
+				style={{ columnGap: 10 }}
+			>
+				<div className={"fs-2 fw-bold"}>Pause</div>
+			</div>
+		)
+	}
+
+	return (
+		<div onClick={onClick}
+			className="btn btn-success g_center"
+			style={{ columnGap: 10 }}
+		>
+			<div className={"fs-2 fw-bold"}>Play</div>
+		</div>
+	)
+}
+
+function BusAnime(props) {
+	const init = {
+		active: "https://neix.s3.amazonaws.com/bus_color.png",
+		inActive: "https://neix.s3.amazonaws.com/wqRklBus.png"
+	}
+
+	const { stateFlag = true } = props;
+
+	const [frame, setFrame] = useState(0);
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			if (stateFlag) {
+				setFrame(() => frame + 1);
+			}
+		}, 1000);
+		return () => clearInterval(interval);
+	}, []);
+
+	if (stateFlag) {
+		return (
+			<img
+				src={(active) ? init.active : init.inActive}
+				style={{
+					width: 100,
+					height: 100
+				}}
+				alt={"Bus"} />
+		)
+	}
+
+	return (
+		<img
+			src={init.active}
+			style={{
+				width: 100,
+				height: 100
+			}}
+			alt={"Bus"} />
+	)
 
 
+}
 
 function Index(props) {
 
-	// #region UseEffect
-	useEffect(() => {
-		fetchGeoCode({
-			param: {
-				q: "Sungai Besi"
-			},
-			onSetLoading: () => { }
-		})
-			.then(data => {
-				Logger.info({
-					content: data,
-					fileName: "geoCode"
-				})
-			})
-			.catch(err => {
-				console.log(`Error: ${err}`);
-			});
+	const init = {
+		active: "https://neix.s3.amazonaws.com/bus_color.png",
+		inActive: "https://neix.s3.amazonaws.com/wqRklBus.png"
+	}
 
-		fetchTest({
-			param: {},
-			onSetLoading: () => { }
-		})
-		.then(data => {
-			console.log(data);
-		})
-		.catch(err => {
-			console.log(`Error: ${err}`);
-		});
-	}, []);
-	// #endregion
-
-	const [loading, setLoading, toggleLoading] = useToggle(false);
-	const [showModal, setShowModal, toggleModal] = useToggle(false);
+	const [active, setInactive, toggleActive] = useToggle(false);
 
 	return (
 		<>
@@ -60,6 +97,9 @@ function Index(props) {
 			></div>
 
 			<div><input type={"time"} /></div>
+
+			<PlayBtn flag={active} onClick={toggleActive} />
+			<BusAnime stateFlag={active} />
 		</>
 	);
 }

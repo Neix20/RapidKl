@@ -7,6 +7,8 @@ import googleApi from "./auth/googleApi.json";
 
 import SampleData from "./ref/sample.json";
 import SampleDirection from "./ref/direction.json";
+import SampleDirectionRes from "./ref/directionRes.json";
+import SampleRapidKlOutput from "./ref/rapidKlOutput.json";
 
 const { apiKey: googleApiKey } = googleApi;
 
@@ -16,5 +18,7 @@ export {
     Images,
     Animation,
     SampleData,
-    SampleDirection
+    SampleDirection,
+    SampleDirectionRes,
+    SampleRapidKlOutput,
 };

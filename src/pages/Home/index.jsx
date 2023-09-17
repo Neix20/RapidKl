@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useContext, createContext } from "
 
 import { Logger, Utility } from "@utility";
 
-import { googleApiKey, Images, SampleData, SampleDirection } from "@config";
+import { googleApiKey, Images, SampleData, SampleDirection, SampleDirectionRes } from "@config";
 
 import "@config/globalStyles.css";
 
@@ -247,11 +247,6 @@ function useDirection(value = null) {
 					const { overview_path, legs } = result.routes[0];
 					setDirection(overview_path);
 
-					Logger.info({
-						content: overview_path,
-						fileName: "direction"
-					})
-
 					let arr = [...stationLs];
 
 					const est_arr = legs.map((obj, ind) => {
@@ -271,7 +266,7 @@ function useDirection(value = null) {
 						return rObj;
 					});
 
-					resolve(arr);
+					resolve([arr, result]);
 				} else {
 					reject(result);
 				}
@@ -298,12 +293,11 @@ function useMap() {
 // #endregion
 
 // #region Map Icons
-
 function StationHubMarker(props) {
 
-	const { onClick = () => { }, name } = props;
+	const { onClick = () => { }, name, initial = false } = props;
 
-	const [showModal, setShowModal, toggleModal] = useToggle(false);
+	const [showModal, setShowModal, toggleModal] = useToggle(initial);
 
 	const cusClick = () => {
 		onClick();
@@ -326,9 +320,9 @@ function StationHubMarker(props) {
 
 function StationMarker(props) {
 
-	const { onClick = () => { }, name } = props;
+	const { onClick = () => { }, name, initial = false } = props;
 
-	const [showModal, setShowModal, toggleModal] = useToggle(false);
+	const [showModal, setShowModal, toggleModal] = useToggle(initial);
 
 	const cusClick = () => {
 		onClick();
@@ -351,9 +345,86 @@ function StationMarker(props) {
 
 function BusColorMarker(props) {
 
-	const { onClick = () => { }, name } = props;
+	const { onClick = () => { }, name, initial = false } = props;
 
-	const [showModal, setShowModal, toggleModal] = useToggle(false);
+	const [showModal, setShowModal, toggleModal] = useToggle(initial);
+
+	const cusClick = () => {
+		onClick();
+		toggleModal();
+	}
+
+	return (
+		<Marker icon={"https://neix.s3.amazonaws.com/bus_color.png"} {...props}
+			onClick={cusClick}>
+			{
+				(showModal) ? (
+					<InfoWindow><span>{name}</span></InfoWindow>
+				) : (
+					<></>
+				)
+			}
+		</Marker>
+	)
+}
+// #endregion
+
+// #region Map Res Icons
+function StationHubResMarker(props) {
+
+	const { onClick = () => { }, name, initial = false } = props;
+
+	const [showModal, setShowModal, toggleModal] = useToggle(initial);
+
+	const cusClick = () => {
+		onClick();
+		toggleModal();
+	}
+
+	return (
+		<Marker icon={"https://neix.s3.amazonaws.com/wqRklHub.png"} {...props}
+			onClick={cusClick}>
+			{
+				(showModal) ? (
+					<InfoWindow><span>{name}</span></InfoWindow>
+				) : (
+					<></>
+				)
+			}
+		</Marker>
+	)
+}
+
+function StationResMarker(props) {
+
+	const { onClick = () => { }, name, initial = false } = props;
+
+	const [showModal, setShowModal, toggleModal] = useToggle(initial);
+
+	const cusClick = () => {
+		onClick();
+		toggleModal();
+	}
+
+	return (
+		<Marker icon={"https://neix.s3.amazonaws.com/wqRklStation.png"} {...props}
+			onClick={cusClick}>
+			{
+				(showModal) ? (
+					<InfoWindow><span>{name}</span></InfoWindow>
+				) : (
+					<></>
+				)
+			}
+		</Marker>
+	)
+}
+
+function BusColorResMarker(props) {
+
+	const { onClick = () => { }, name, initial = false } = props;
+
+	const [showModal, setShowModal, toggleModal] = useToggle(initial);
 
 	const cusClick = () => {
 		onClick();
@@ -716,13 +787,15 @@ function ControlPane(props) {
 	}
 	// #endregion
 
-	const [loading, setLoading] = useContext(Context);
+	const [loading, setLoading, setResultFlag, toggleResultFlag, resDirection, setResDirection, resData, setResData] = useContext(Context);
 	const [coords, setCoords] = useState(init.coord);
 
 	const { stationLs, setStationLs } = stationObj;
 	const { direction, setDirection, GenRoute } = directionObj;
 	const { busLs, setBusLs, AddBus } = busObj;
 	const { expense, setExpense } = expenseObj;
+
+	const [directionRes, setDirectionRes] = useState(SampleDirectionRes);
 
 	useEffect(() => {
 		if (stationLs.length > 0) {
@@ -786,8 +859,10 @@ function ControlPane(props) {
 		setLoading(true);
 		GenRoute(stationLs)
 			.then(data => {
+				const [station_new_arr, tDirectionRes] = data;
 				setLoading(false);
-				setStationLs(data);
+				setStationLs(station_new_arr);
+				setDirectionRes(tDirectionRes);
 			}).catch(err => {
 				setLoading(false);
 				setDirection(null);
@@ -807,21 +882,28 @@ function ControlPane(props) {
 		final["data"]["buses_info"] = busLs;
 		final["data"]["other_panel_info"] = expense;
 
-		Logger.info({
-			content: final,
-			fileName: "rapidKlInput"
-		});
-
 		setLoading(true);
 		fetchSimulation({
 			param: final,
+			stationData: stationLs.map(({ lat, lng }) => ({ lat, lng })),
+			directionData: directionRes,
 			onSetLoading: setLoading,
 		})
 			.then(data => {
+
 				Logger.info({
 					content: data,
-					fileName: "rapidKlOutput"
-				});
+					fileName: "Final_Res"
+				})
+
+				// Data
+				setResData(data);
+
+				// Set Direction
+				setResDirection(direction);
+
+				// Set Flag
+				setResultFlag(true);
 			})
 			.catch(err => {
 				setLoading(false);
@@ -913,6 +995,114 @@ function ControlPane(props) {
 }
 // #endregion
 
+function MapRes(props) {
+
+	// #region Props
+	const { iCoord = { lat: 0, lng: 0 }, setICoord = () => { } } = props;
+	const { direction, stationLs, busLs, onMapLoad, onMarkerZoom, frame = 0 } = props;
+	// #endregion
+
+	// #region Constant
+	const { isLoaded } = useLoadScript({ googleMapsApiKey: googleApiKey });
+	const center = useMemo(() => (iCoord), []);
+
+	const mapOption = {
+		styles: [
+			{
+				featureType: 'poi',
+				elementType: 'labels',
+				stylers: [{ visibility: 'off' }],
+			},
+			{
+				featureType: 'transit',
+				elementType: 'labels',
+				stylers: [{ visibility: 'off' }],
+			}
+		]
+	};
+	// #endregion
+
+	// #region UseEffect
+	useEffect(() => {
+		const { lat, lng } = iCoord;
+		if (lat != 0 && lng != 0) {
+			onMarkerZoom(iCoord);
+		}
+	}, [JSON.stringify(iCoord)]);
+	// #endregion
+
+	// #region Render
+	const renderStation = (item, index) => {
+
+		const { is_hub } = item;
+		const onClick = () => onMarkerZoom(item);
+
+		const CMarker = (is_hub) ? StationHubResMarker : StationResMarker;
+
+		return (
+			<CMarker key={index}
+				onClick={onClick}
+				position={item}
+				{...item}
+			/>
+		)
+	}
+
+	const renderBus = (item, index) => {
+		const onClick = () => onMarkerZoom(item);
+
+		return (
+			<BusColorResMarker key={index}
+				onClick={onClick}
+				position={item}
+				{...item}
+			/>
+		)
+	}
+	// #endregion
+
+	if (!isLoaded) {
+		return (
+			<div className="w-100 h-100 g_center" style={{ backgroundColor: "#FFF" }}>
+				<WqLoading />
+			</div>
+		)
+	}
+
+	return (
+		<GoogleMap
+			mapContainerClassName="w-100 h-100"
+			options={mapOption}
+			zoom={15} center={center}
+			onLoad={onMapLoad}>
+			{
+				stationLs[frame].map(renderStation)
+			}
+			{
+				busLs[frame].map(renderBus)
+			}
+			{
+				(direction != null) ? (
+					<>
+						{/* <DirectionsRenderer directions={direction} /> */}
+						<Polyline
+							path={direction}
+							geodesic={false}
+							options={{
+								strokeColor: '#38B44F',
+								strokeOpacity: 1,
+								strokeWeight: 7,
+							}}
+						/>
+					</>
+				) : (
+					<></>
+				)
+			}
+		</GoogleMap>
+	);
+}
+
 // #region Result
 function ResultHeader(props) {
 	return (
@@ -946,7 +1136,7 @@ function ResultTabHeader(props) {
 	// #endregion
 
 	const init = {
-		tabLs: ["Best", "Medium", "Worst"],
+		tabLs: ["Best", "Median", "Worst"],
 	};
 
 	// #region Render
@@ -975,33 +1165,133 @@ function ResultTabHeader(props) {
 	return <ul className={"nav nav-tabs"}>{init.tabLs.map(renderTab)}</ul>;
 }
 
+function PlayBtn(props) {
+	const { flag = false, onClick = () => { } } = props;
+
+	if (flag) {
+		return (
+			<div onClick={onClick}
+				className="btn btn-warning g_center"
+				style={{ columnGap: 10 }}
+			>
+				<div className={"fs-2 fw-bold"}>Pause</div>
+				<i className="fa-solid fa-pause fa-2xl"></i>
+			</div>
+		)
+	}
+
+	return (
+		<div onClick={onClick}
+			className="btn btn-success g_center"
+			style={{ columnGap: 10 }}
+		>
+			<div className={"fs-2 fw-bold"}>Play</div>
+			<i className="fa-solid fa-play fa-2xl"></i>
+		</div>
+	)
+}
+
 function ResultTabPane(props) {
 
 	// #region Props
-	const { ind, setInd = () => { }, colors = [] } = props;
+	const { indKey = "" } = props;
 	// #endregion
 
+	const [play, setPlay, togglePlay] = useToggle(false);
+
+	const { resDirection, resData } = props;
+
+	const mapHook = useMap();
+	const mapObj = {
+		mapRef: mapHook[0],
+		setMapRef: mapHook[1],
+		onMapLoad: mapHook[2],
+		onMarkerZoom: mapHook[3]
+	}
+
+	useEffect(() => {
+		setFrame(0);
+	}, [indKey]);
+
+	const [frame, setFrame] = useState(1000);
+
+	const [duration, setDuration] = useState(1);
+
+	const maxFrame = 1051;
+	const time_per_frame = 1000 * 60 * duration / maxFrame;
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			if (play) {
+				setFrame(frame => (frame + 1) % maxFrame);
+			}
+		}, time_per_frame);
+		return () => clearInterval(interval);
+	}, [play]);
+
 	return (
-		<div
-			style={{
-				backgroundColor: colors[ind],
-				flex: 1,
-			}}
-		></div>
+		<div className="w-100 h-100" style={{ display: "flex" }}>
+			<div className="w-100 h-100" style={{ flex: .2, display: "flex", flexDirection: "column" }}>
+				<div className={"g_center"} style={{ flex: .2 }}>
+					<PlayBtn flag={play} onClick={togglePlay} />
+
+				</div>
+				<div className={"g_center"}
+					style={{ flex: .8, padding: 10 }}>
+					<div className={"w-100 h-100"} style={{ display: "flex", flexDirection: "column", borderWidth: 3, borderStyle: "solid", padding: 10 }}>
+						<div className={"g_center"} style={{ flex: .1 }}>
+							<div className={"fw-bold fs-2"}>Result</div>
+						</div>
+						<div style={{ flex: .9 }}>
+							<div className={"fw-bold fs-2"}>Frame {frame}</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div className="w-100 h-100" style={{ flex: .8, backgroundColor: "#F00" }}>
+				{
+					(resData[indKey]["station_list"].length > 0) ? (
+						<MapRes
+							frame={frame}
+							direction={resDirection}
+							iCoord={resData[indKey]["station_list"][0][0]}
+							stationLs={resData[indKey]["station_list"]}
+							busLs={resData[indKey]["buses_list"]}
+							{...mapObj} />
+					) : (
+						<></>
+					)
+				}
+			</div>
+		</div>
 	);
 }
 
 function ResultPane(props) {
+
 	// #region UseState
 	const [tabPaneInd, setTabPaneInd] = useState(0);
 	// #endregion
 
-	const colors = ["#F00", "#0F0", "#00F"];
+	const contextHook = useContext(Context);
+	const contextObj = {
+		loading: contextHook[0],
+		setLoading: contextHook[1],
+		setResultFlag: contextHook[2],
+		toggleResultFlag: contextHook[3],
+		resDirection: contextHook[4],
+		setResDirection: contextHook[5],
+		resData: contextHook[6],
+		setResData: contextHook[7]
+	}
+
+	const init = {
+		tabLs: ["best_run", "median_run", "worst_run"],
+	};
 
 	return (
 		<div
 			style={{
-				// backgroundColor: "#F00",
 				display: "flex",
 				flexDirection: "column",
 				height: "100vh",
@@ -1013,11 +1303,7 @@ function ResultPane(props) {
 			{/* Tab Header */}
 			<ResultTabHeader ind={tabPaneInd} setInd={setTabPaneInd} />
 
-			<ResultTabPane
-				ind={tabPaneInd}
-				setInd={setTabPaneInd}
-				colors={colors}
-			/>
+			<ResultTabPane indKey={init.tabLs[tabPaneInd]} {...contextObj} />
 		</div>
 	);
 }
@@ -1028,8 +1314,19 @@ function Index(props) {
 	const [loading, setLoading, toggleLoading] = useToggle(false);
 	const [resultFlag, setResultFlag, toggleResultFlag] = useToggle(false);
 
+	const [resData, setResData] = useState({});
+
+	const directionHook = useDirection(null);
+	const directionObj = {
+		resDirection: directionHook[0],
+		setResDirection: directionHook[1]
+	}
+
+	const { resDirection, setResDirection } = directionObj;
+
 	return (
-		<Context.Provider value={[loading, setLoading]}>
+		<Context.Provider value={[loading, setLoading, setResultFlag, toggleResultFlag, resDirection, setResDirection, resData, setResData]}>
+
 			{/* Loading */}
 			<WqLoadingModal loading={loading} />
 
