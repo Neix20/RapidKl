@@ -6,10 +6,12 @@ import { googleApiKey, Images } from "@config";
 
 import "@config/globalStyles.css";
 
-import { fetchGeoCode } from "@api";
+import { fetchGeoCode, fetchSimulation } from "@api";
 import { WqScrollFabBtn, WqModalBtn, WqLoading, WqLoadingModal } from "@components";
 
 import { useToggle } from "@hooks";
+
+import { DateTime } from "luxon";
 
 const Context = createContext();
 
@@ -17,6 +19,7 @@ import { GoogleMap, Marker, Polyline, useLoadScript } from "@react-google-maps/a
 
 import WqBus from "./Bus";
 import WqStation from "./Station";
+import WqExpenses from "./Expenses";
 
 // #region Custom Hooks
 function useBus(value = []) {
@@ -26,12 +29,12 @@ function useBus(value = []) {
 		let arr = [...busLs];
 
 		let obj = {
-			"name": "",
-			"driver": "",
-			"max_occupants": 0,
+			"name": `Bus ${arr.length + 1}`,
+			"driver": `Driver ${arr.length + 1}`,
+			"max_occupants": 50,
 			"starting_time": 0,
-			"time_iso": "6:00",
-			"fuel_consumption_per_km": 0,
+			"time_iso": "06:00",
+			"fuel_consumption_per_km": 0.41,
 			"major_break": 0,
 			lat: lat,
 			lng: lng,
@@ -39,22 +42,39 @@ function useBus(value = []) {
 		}
 		arr.push(obj);
 
+		for (let ind in arr) {
+			arr[ind].pos = ind;
+		}
+
 		setBusLs(arr);
 	}
 
 	const UpdateBus = (item) => {
-		const { pos } = item;
+		const { pos, time_iso, max_occupants } = item;
+
+		const dt = DateTime.fromISO(`2023-08-18T${time_iso}:00`);
+
+		const minDt = DateTime.fromISO(`2023-08-18T00:00:00`);
+
+		const { minutes } = dt.diff(minDt, 'minutes').toObject();
 
 		let arr = [...busLs];
 		arr[pos] = item;
+		arr["starting_time"] = minutes;
+		arr["max_occupants"] = Math.floor(max_occupants);
 		setBusLs(arr);
 	}
 
-	const DeleteBus = (ind) => {
+	const DeleteBus = (pos) => {
 		let arr = [...busLs];
-		if (ind > -1) {
-			arr.splice(ind, 1);
+		if (pos > -1) {
+			arr.splice(pos, 1);
 		}
+
+		for (let ind in arr) {
+			arr[ind].pos = ind;
+		}
+
 		setBusLs(arr);
 	}
 
@@ -86,6 +106,14 @@ function useStation(value = []) {
 
 		const is_hub = (arr.length == 0) ? true : false;
 
+		let supply_arr = [];
+		let demand_arr = [];
+
+		for(let ind = 6; ind <= 23; ind += 1) {
+			supply_arr.push(1);
+			demand_arr.push(1);
+		}
+
 		let obj = {
 			name: `Station ${arr.length + 1}`,
 			lat: lat,
@@ -93,7 +121,9 @@ function useStation(value = []) {
 			is_hub: is_hub,
 			pos: arr.length,
 			ride_zone: 1,
-			color: color[0]
+			color: color[0],
+			supply: supply_arr,
+			demand: demand_arr
 		};
 
 		arr.push(obj);
@@ -124,20 +154,43 @@ function useStation(value = []) {
 	}
 
 	const UpdateStation = (item) => {
-		const { pos, ride_zone = 1 } = item;
+
+		const { pos, ride_zone = 1, lat, lng } = item;
 
 		let arr = [...stationLs];
 
 		let obj = {
 			...item,
+			lat: +lat,
+			lng: +lng,
 			color: color[ride_zone - 1]
 		}
 
 		arr[pos] = obj;
+
 		setStationLs(arr);
 	}
 
 	return [stationLs, setStationLs, AddStation, DeleteStation, UpdateStation, MakeStationHub];
+}
+
+function useExpense(value = {}) {
+
+	const rideZoneMat = Utility.genRideZoneMat();
+
+	const init = {
+		expense: {
+			"fuel_price": 10,
+            "driver_daily_salary": 10,
+			"fare_matrix": rideZoneMat,
+			"other_fees": 10,
+			...value,
+		}
+	}
+
+	const [expense, setExpense] = useState(init.expense);
+
+	return [expense, setExpense];
 }
 
 function useDirection(value = null) {
@@ -160,7 +213,7 @@ function useDirection(value = null) {
 			));
 
 		const directionService = new google.maps.DirectionsService();
-		return new Promise(resolve => directionService.route(
+		return new Promise((resolve, reject) => directionService.route(
 			{
 				origin: origin,
 				waypoints: wayPt,
@@ -195,10 +248,7 @@ function useDirection(value = null) {
 
 					resolve(arr);
 				} else {
-					Logger.error({
-						content: result,
-						fileName: "directionRouteError",
-					})
+					reject(result);
 				}
 			}
 		));
@@ -207,7 +257,7 @@ function useDirection(value = null) {
 	return [direction, setDirection, GenRoute];
 }
 
-function useMap(value = null) {
+function useMap() {
 	const [mapRef, setMapRef] = useState();
 
 	const onMapLoad = (map) => {
@@ -437,9 +487,11 @@ function Map(props) {
 			{
 				stationLs.map(renderStation)
 			}
-			{
-				busLs.map(renderBus)
-			}
+			<div key={busLs.map(obj => `${obj.lat}${obj.lng}`)}>
+				{
+					busLs.map(renderBus)
+				}
+			</div>
 			{
 				(direction != null) ? (
 					<>
@@ -492,6 +544,52 @@ function Logo(props) {
 	);
 }
 
+function StartBtn(props) {
+	const { flag = false, onClick = () => { } } = props;
+
+	if (!flag) {
+		return (
+			<div className="btn btn-warning w-100 h-50 g_center disabled"
+				style={{ columnGap: 10 }}>
+				<div className={"fs-2 fw-bold"}>Gen Route</div>
+				<i className="fa-solid fa-map-location-dot fa-lg"></i>
+			</div>
+		)
+	}
+
+	return (
+		<div onClick={onClick}
+			className="btn btn-warning w-100 h-50 g_center"
+			style={{ columnGap: 10 }}>
+			<div className={"fs-2 fw-bold"}>Gen Route</div>
+			<i className="fa-solid fa-map-location-dot fa-lg"></i>
+		</div>
+	)
+}
+
+function SubmitBtn(props) {
+	const { flag = false, onClick = () => { } } = props;
+
+	if (!flag) {
+		return (
+			<div className="btn btn-success w-100 h-50 g_center disabled"
+				style={{ columnGap: 10 }}>
+				<div className={"fs-2 fw-bold"}>Submit</div>
+				<i className="fa-solid fa-flag-checkered fa-lg"></i>
+			</div>
+		)
+	}
+
+	return (
+		<div onClick={onClick}
+			className="btn btn-success w-100 h-50 g_center"
+			style={{ columnGap: 10 }}>
+			<div className={"fs-2 fw-bold"}>Submit</div>
+			<i className="fa-solid fa-flag-checkered fa-lg"></i>
+		</div>
+	)
+}
+
 function ControlPane(props) {
 
 	// #region Init
@@ -521,7 +619,7 @@ function ControlPane(props) {
 		GenRoute: directionHook[2]
 	}
 
-	const mapHook = useMap(null);
+	const mapHook = useMap();
 	const mapObj = {
 		mapRef: mapHook[0],
 		setMapRef: mapHook[1],
@@ -537,6 +635,12 @@ function ControlPane(props) {
 		UpdateBus: busHook[3],
 		DeleteBus: busHook[4]
 	}
+
+	const expenseHook = useExpense({});
+	const expenseObj = {
+		expense: expenseHook[0],
+		setExpense: expenseHook[1]
+	}
 	// #endregion
 
 	const [loading, setLoading] = useContext(Context);
@@ -545,6 +649,22 @@ function ControlPane(props) {
 	const { stationLs, setStationLs } = stationObj;
 	const { direction, setDirection, GenRoute } = directionObj;
 	const { busLs, setBusLs, AddBus } = busObj;
+	const { expense, setExpense } = expenseObj;
+
+	useEffect(() => {
+		if (stationLs.length > 0) {
+			const { lat, lng } = stationLs.filter(obj => obj.is_hub)[0];
+
+			let arr = [...busLs];
+
+			for (let ind in arr) {
+				arr[ind].lat = lat;
+				arr[ind].lng = lng;
+			}
+
+			setBusLs(arr);
+		}
+	}, [JSON.stringify(stationLs.map(obj => `${obj.lat}${obj.lng}${obj.is_hub}`))]);
 
 	// #region Helper
 	const searchQuery = (val) => {
@@ -571,14 +691,14 @@ function ControlPane(props) {
 				}
 			})
 			.catch((err) => {
-				setLoading(false)
+				setLoading(false);
 				console.log(`Error: ${err}`);
 			});
 	};
 
 	const InsertBus = () => {
 		if (stationLs.length > 0) {
-			const { lat, lng } = stationLs[0];
+			const { lat, lng } = stationLs.filter(obj => obj.is_hub)[0];
 			AddBus(lat, lng);
 		}
 	}
@@ -595,16 +715,46 @@ function ControlPane(props) {
 			.then(data => {
 				setLoading(false);
 				setStationLs(data);
-				Logger.info({
-					content: data,
-					fileName: "stationFinal",
-				})
 			}).catch(err => {
 				setLoading(false);
+				setDirection(null);
 				Logger.error({
-					content: "An Error has Occured!"
+					content: err,
+					fileName: "directionRouteError"
 				})
 			});
+	}
+
+	const onSubmit = () => {
+		let final = {};
+
+		final["data"] = {};
+
+		final["data"]["stations_info"] = stationLs;
+		final["data"]["buses_info"] = busLs;
+		final["data"]["other_panel_info"] = expense;
+
+		Logger.info({
+			content: final,
+			fileName: "rapidKlInput"
+		});
+
+		setLoading(true);
+		fetchSimulation({
+			param: final,
+			onSetLoading: setLoading,
+		})
+		.then(data => {
+			Logger.info({
+				content: data,
+				fileName: "rapidKlOutput"
+			});
+		})
+		.catch(err => {
+			setLoading(false);
+			console.log(`Error: ${err}`)
+		})
+
 	}
 	// #endregion
 
@@ -654,28 +804,9 @@ function ControlPane(props) {
 							rowGap: 10
 						}}
 					>
-						<WqBus flag={stationLs.length > 0} {...busObj} {...mapObj} AddBus={InsertBus} />
+						<WqBus flag={stationLs.length > 1} {...busObj} {...mapObj} AddBus={InsertBus} />
 						<WqStation {...stationObj} {...mapObj} />
-						<WqModalBtn
-							btnChild={
-								<div
-									className="btn btn-warning w-100 h-100 g_center"
-									style={{ columnGap: 10 }}
-								>
-									<div className={"fs-2 fw-bold"}>
-										Ticket Fares
-									</div>
-									<i className="fa-solid fa-money-bill fa-lg"></i>
-								</div>
-							}
-							mdlChild={
-								<div className={"g_center"}>
-									<div className={"fs-2 fw-bold"}>
-										Ticket Fares
-									</div>
-								</div>
-							}
-						/>
+						<WqExpenses flag={stationLs.length > 1} {...expenseObj} />
 						<div onClick={onReset}
 							className="btn btn-danger w-100 h-50 g_center"
 							style={{ columnGap: 10 }}
@@ -683,13 +814,8 @@ function ControlPane(props) {
 							<div className={"fs-2 fw-bold"}>Reset</div>
 							<i className="fa-solid fa-rotate-left fa-lg"></i>
 						</div>
-						<div onClick={onStart}
-							className="btn btn-success w-100 h-50 g_center"
-							style={{ columnGap: 10 }}
-						>
-							<div className={"fs-2 fw-bold"}>Start</div>
-							<i className="fa-solid fa-flag-checkered fa-lg"></i>
-						</div>
+						<StartBtn onClick={onStart} flag={stationLs.length > 1} />
+						<SubmitBtn onClick={onSubmit} flag={stationLs.length > 1 & busLs.length > 1 && direction != null} />
 					</div>
 
 					{/* Map */}

@@ -13,4 +13,4 @@ RUN yarn install
 # Bundle app source
 COPY . .
 
-CMD [ "npm", "run", "start" ]
+CMD [ "npm", "run", "dev" ]

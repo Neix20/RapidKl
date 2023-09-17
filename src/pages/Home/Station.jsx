@@ -106,48 +106,34 @@ function StationNodeSd(props) {
     const { startHr = 6, endHr = 23 } = props;
     const { station, setStation = () => { } } = props;
 
-    const [tsDict, setTsDict] = useState({});
-
-    const stationTs = Object.values(tsDict);
-
-    // #region UseEffect
-    useEffect(() => {
-        let dict = Utility.genHourDict(startHr, endHr);
-        setTsDict(dict);
-    }, []);
-    // #endregion
+    const { supply: supplyArr = [], demand: demandArr = [] } = station;
+    const hrIsoArr = Utility.genHourIsoArr(startHr, endHr);
 
     // #region Helper
-    const toggleStationSupplyDemand = (supply, demand) => {
+    const updateStation = (index, name, val) => {
+        
+        if (name === "supply") {
+            supplyArr[index] = val;
+        } else {
+            demandArr[index] = val;
+        }
+
         let obj = { ...station };
-        obj["supply"] = supply;
-        obj["demand"] = demand;
+        obj["supply"] = supplyArr;
+        obj["demand"] = demandArr;
         setStation(obj);
-    }
-
-    const updateStation = (item, name, val) => {
-        let dict = { ...tsDict };
-
-        const { iso } = item;
-        item[name] = val;
-        dict[iso] = item;
-
-        setTsDict(dict);
-
-        const supplyArr = stationTs.map(x => x.supply);
-        const demandArr = stationTs.map(x => x.demand);
-
-        toggleStationSupplyDemand(supplyArr, demandArr);
     }
     // #endregion
 
     // #region Render
     const renderStationSd = (item, index) => {
 
-        const { iso, supply, demand } = item;
+        const iso = hrIsoArr[index];
+        const supply = supplyArr[index];
+        const demand = demandArr[index];
 
-        const setSupply = (val) => updateStation(item, "supply", val);
-        const setDemand = (val) => updateStation(item, "demand", val);
+        const setSupply = (val) => updateStation(index, "supply", val);
+        const setDemand = (val) => updateStation(index, "demand", val);
 
         return (
             <StationNodeSdInput key={index} time={iso}
@@ -165,20 +151,19 @@ function StationNodeSd(props) {
             maxWidth: 1080,
             rowGap: 10,
         }}>
-            {stationTs.map(renderStationSd)}
+            {hrIsoArr.map(renderStationSd)}
         </div>
     )
 }
 
 function StationInput(props) {
 
-    const { station, toggleStation = () => { } } = props;
+    const { station, toggleStation = () => { }, toggleModal = () => {} } = props;
     const { onMakeStationHub = () => { }, onRemoveStation = () => { }, onShowMap = () => { } } = props;
 
     const { is_hub, ride_zone, lat, lng, name } = station;
 
     const rideZoneLs = Utility.genRideZone();
-    const colorLs = Utility.genRideZoneColor();
 
     // #region Helper
 
@@ -234,7 +219,7 @@ function StationInput(props) {
                     style={{
                         justifyContent: "space-between",
                         columnGap: 10,
-                        maxWidth: 240,
+                        maxWidth: 300,
                         width: "50%",
                     }}>
                     <div
@@ -257,7 +242,7 @@ function StationInput(props) {
                     style={{
                         justifyContent: "space-between",
                         columnGap: 10,
-                        maxWidth: 240,
+                        maxWidth: 300,
                         width: "50%",
                     }}>
                     <div
@@ -314,6 +299,7 @@ function StationInput(props) {
                 }
                 <div onClick={onRemoveStation} className="btn btn-danger">Remove Station</div>
                 <div onClick={onShowMap} className="btn btn-success">Show in Map</div>
+                <div onClick={toggleModal} className="btn btn-primary">Update Station</div>
             </div>
         </div>
     )
@@ -375,7 +361,7 @@ function StationNode(props) {
                 </div>
                 <div style={{ width: "80%" }}>
                     {/* Input */}
-                    <StationInput
+                    <StationInput {...props}
                         station={station}
                         toggleStation={toggleStation}
                         onMakeStationHub={onMakeStationHub}
@@ -397,9 +383,9 @@ function StationTitle(props) {
         <div onClick={onSelect}
             className={"btn btn-light w-90"}
             style={{
-                maxWidth: 120,
+                // maxWidth: 120,
                 minHeight: 48,
-                fontSize: 12,
+                fontSize: 18,
                 borderWidth: 3,
                 borderStyle: "solid",
                 borderColor: color,
@@ -422,7 +408,6 @@ function Index(props) {
         setShowModal: modalHook[1], 
         toggleModal: modalHook[2]
     }
-
 
     const renderStationItem = (item, index) => {
         const onSelect = () => setSelPos(index);
@@ -471,7 +456,7 @@ function Index(props) {
                             height: "90%"
                         }}>
                         <div style={{
-                            flex: .2,
+                            flex: .15,
                             display: "flex",
                             flexDirection: "column",
                             rowGap: 10,
@@ -480,7 +465,7 @@ function Index(props) {
                             {stationLs.map(renderStationItem)}
                         </div>
                         <div style={{
-                            flex: .8,
+                            flex: .85,
                             overflowY: "auto",
                             padding: 10
                         }}>

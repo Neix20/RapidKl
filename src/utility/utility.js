@@ -41,6 +41,18 @@ function genHourArr(startHr, endHr) {
     return arr;
 }
 
+function genHourIsoArr(startHr, endHr) {
+    let arr = [];
+
+    for (let hr = startHr; hr <= endHr; hr += 1) {
+        const hrDt = DateTime.fromObject({ hour: hr });
+        let hrIso = hrDt.toFormat("h:mma");
+        arr.push(hrIso);
+    }
+
+    return arr;
+}
+
 function genHourDict(startHr, endHr) {
     let arr = genHourArr(startHr, endHr);
 
@@ -48,7 +60,6 @@ function genHourDict(startHr, endHr) {
 
     for (let hr of arr) {
         const hrDt = DateTime.fromObject({ hour: hr });
-
         let hrIso = hrDt.toFormat("h:mma");
 
         let obj = {
@@ -76,6 +87,20 @@ function genRideZone() {
     }
 
     return arr;
+}
+
+function genRideZoneMat() {
+    let mat = [];
+
+    for (let ind = 1; ind <= 8; ind += 1) {
+        let arr = [];
+        for (let jnd = 1; jnd <= 8; jnd += 1) {
+            arr.push(1);
+        }
+
+        mat.push(arr);
+    }
+    return mat;
 }
 
 function genRideZoneColor() {
@@ -106,9 +131,14 @@ export {
 };
 
 export {
-    genHourArr,
-    genHourDict,
     genRideZone,
     genRideZoneColor,
+    genRideZoneMat,
+};
+
+export {
+    genHourArr,
+    genHourIsoArr,
+    genHourDict,
     roundDown
 };

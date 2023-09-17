@@ -1,6 +1,6 @@
 ## Task List
 
-- [ ] Google Maps API
+- [x] Google Maps API
   - [x] Put Person Marker
   - [x] Put Station Marker
     - [x] Marker has Pop up
@@ -30,7 +30,9 @@
 
 - [ ] File Upload Api
 
-- [ ] Server Hosting
+- [x] Server Hosting
+- [ ] Initial Load Data
+- [ ] Output Animation Data
 
 - [ ] Bus Animations
   - [ ] Bus Blink Interval

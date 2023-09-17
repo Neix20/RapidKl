@@ -113,7 +113,7 @@ function BusNodeInput(props) {
                 <i className="fa-regular fa-user"></i>
                 <NumberInput
                     name={"max_occupants"} value={max_occupants} onChange={toggleBus}
-                    min={0} max={30} step={1} />
+                    min={0} max={50} step={1} />
             </div>
 
             {/* Driver Name */}
@@ -144,7 +144,7 @@ function BusNodeInput(props) {
                     name={"time_iso"} value={time_iso} onChange={toggleBus}
                     min={"06:00"} max={"23:00"} step={60}
                     placeholder={"Driver Name"}
-                    style={{ width: 90 }} />
+                    style={{ width: 200 }} />
             </div>
 
             {/* Break */}
@@ -152,7 +152,7 @@ function BusNodeInput(props) {
                 <i className="fa-solid fa-clock-rotate-left"></i>
                 <NumberInput
                     name={"major_break"} value={major_break} onChange={toggleBus}
-                    min={0} max={6} step={1} rstyle={{ accentColor: "#0F0" }} />
+                    min={0} max={6} step={1} rstyle={{ accentColor: "#0F0", width: 150 }} />
             </div>
 
             {/* Remove Btn */}
@@ -160,6 +160,8 @@ function BusNodeInput(props) {
 
             {/* Show In Map */}
             <div onClick={onMapShow} className="btn btn-success">Show In Map</div>
+
+            <div onClick={toggleModal} className="btn btn-primary">Update Bus</div>
         </div>
     )
 }
@@ -181,7 +183,7 @@ function BusNode(props) {
                     height: 100
                 }} alt={"RapidKl Bus"} />
             </div>
-            <div style={{ width: 300 }}>
+            <div style={{ width: 280 }}>
                 <BusNodeInput {...props} />
             </div>
         </div>
@@ -224,6 +226,18 @@ function Index(props) {
         )
     }
     // #endregion
+
+    if (!flag) {
+        return (
+            <div
+                className="btn btn-primary w-100 h-100 g_center disabled"
+                style={{ columnGap: 10 }}
+            >
+                <div className={"fs-2 fw-bold"}>Buses</div>
+                <i className="fa-solid fa-bus fa-lg"></i>
+            </div>
+        )
+    }
 
     return (
         <WqModalBtn {...modalObj}
