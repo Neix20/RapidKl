@@ -1,3 +1,12 @@
+function checkAndCallFunction(variable) {
+    if (typeof variable === 'function') {
+        return variable();
+    } else {
+        return variable;
+    }
+}
+
+
 function binarySearchWithClosest(arr, targetTimestamp) {
     let left = 0;
     let right = arr.length - 1;
@@ -235,6 +244,15 @@ function parser(jsonData, directionJson) {
             for (let k = 0; k < latlongs.length - 1; k += 1) {
                 let firstPoint = latlongs[k]
                 secondPoint = latlongs[k + 1]
+
+                firstPoint = {
+                    'lat': checkAndCallFunction(firstPoint.lat),
+                    'lng': checkAndCallFunction(firstPoint.lng),
+                }
+                secondPoint = {
+                    'lat': checkAndCallFunction(secondPoint.lat),
+                    'lng': checkAndCallFunction(secondPoint.lng),
+                }
 
                 all_points_in_path.push(firstPoint)
                 total_dist_in_step += getDistance(firstPoint.lat, firstPoint.lng, secondPoint.lat, secondPoint.lng)
