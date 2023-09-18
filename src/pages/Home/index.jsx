@@ -718,14 +718,14 @@ function Map(props) {
 			zoom={15} center={center}
 			onClick={onMapClick}
 			onLoad={onMapLoad}>
-			{
-				stationLs.map(renderStation)
-			}
 			<div key={busLs.map(obj => `${obj.lat}${obj.lng}`)}>
 				{
 					busLs.map(renderBus)
 				}
 			</div>
+			{
+				stationLs.map(renderStation)
+			}
 			{
 				(direction != null) ? (
 					<>
@@ -1168,10 +1168,10 @@ function MapRes(props) {
 			zoom={15} center={center}
 			onLoad={onMapLoad}>
 			{
-				stationLs[frame].map(renderStation)
+				busLs[frame].map(renderBus)
 			}
 			{
-				busLs[frame].map(renderBus)
+				stationLs[frame].map(renderStation)
 			}
 			{
 				(direction != null) ? (
