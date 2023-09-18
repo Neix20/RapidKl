@@ -1376,7 +1376,7 @@ function ResultTabPane(props) {
 			<div className="w-100 h-100" style={{ flex: .2, display: "flex", flexDirection: "column" }}>
 				<div className={"g_center"} style={{ flex: .3, display: "flex", flexDirection: "column" }}>
 					<div className={"fs-2 fw-bold"}>
-						{DateTime.fromObject({ hour: 6 + Math.floor(frame / 60), minute: frame % 60 }).toFormat("hh:mm")}
+						{DateTime.fromObject({ hour: 6 + Math.floor(frame / 60), minute: frame % 60 }).toFormat("HH:mm")}
 					</div>
 					<PlayBtn flag={play} onClick={togglePlay} />
 					<div style={{ padding: "0px 10px" }}>
