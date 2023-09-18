@@ -388,7 +388,7 @@ function StationHubResMarker(props) {
 			{
 				(showModal) ? (
 					<InfoWindow>
-					<div style={{ display: "flex", flexDirection: "column", width: 400 }}>
+						<div style={{ display: "flex", flexDirection: "column", width: 400 }}>
 							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 								<div>Name</div>
 								<div>{name}</div>
@@ -945,6 +945,7 @@ function ControlPane(props) {
 		setBusLs([]);
 		setStationLs([]);
 		setDirection(null);
+		setResultFlag(false);
 	}
 
 	const onStart = () => {
@@ -970,14 +971,24 @@ function ControlPane(props) {
 
 		final["data"] = {};
 
-		final["data"]["stations_info"] = stationLs;
+		// Sort Hub Here
+		let station_arr = [...stationLs];
+
+		let hub_arr = station_arr.filter(x => x.is_hub);
+		let not_hub_arr = station_arr.filter(x => !x.is_hub);
+
+		station_arr = [...hub_arr, ...not_hub_arr];
+
+		console.log(station_arr, stationLs);
+
+		final["data"]["stations_info"] = station_arr;
 		final["data"]["buses_info"] = busLs;
 		final["data"]["other_panel_info"] = expense;
 
 		setLoading(true);
 		fetchSimulation({
 			param: final,
-			stationData: stationLs.map(({ lat, lng }) => ({ lat, lng })),
+			stationData: station_arr.map(({ lat, lng }) => ({ lat, lng })),
 			directionData: directionRes,
 			onSetLoading: setLoading,
 		})
@@ -994,8 +1005,16 @@ function ControlPane(props) {
 				// Set Direction
 				setResDirection(direction);
 
+				// Refresh Result
+				toggleResultFlag();
+
 				// Set Flag
 				setResultFlag(true);
+
+				// Scroll To Bottom Once Submitted
+				setTimeout(() => {
+					window.scrollTo(0, document.body.scrollHeight);
+				}, 500);
 			})
 			.catch(err => {
 				setLoading(false);
@@ -1354,7 +1373,7 @@ function ResultTabPane(props) {
 	const time_per_frame = 1000 * 60 * duration / maxFrame;
 
 	useEffect(() => {
-		setFrame(0);
+		onReset();
 	}, [indKey]);
 
 	useEffect(() => {
@@ -1371,6 +1390,8 @@ function ResultTabPane(props) {
 		setFrame(+value);
 	}
 
+	const onReset = () => setFrame(0);
+
 	return (
 		<div className="w-100 h-100" style={{ display: "flex" }}>
 			<div className="w-100 h-100" style={{ flex: .2, display: "flex", flexDirection: "column" }}>
@@ -1378,7 +1399,13 @@ function ResultTabPane(props) {
 					<div className={"fs-2 fw-bold"}>
 						{DateTime.fromObject({ hour: 6 + Math.floor(frame / 60), minute: frame % 60 }).toFormat("HH:mm")}
 					</div>
-					<PlayBtn flag={play} onClick={togglePlay} />
+					<div style={{ display: "flex", columnGap: 10 }}>
+						<PlayBtn flag={play} onClick={togglePlay} />
+						<div onClick={onReset} 
+							className={"btn btn-danger fw-bold fs-2"}>
+							Reset
+						</div>
+					</div>
 					<div style={{ padding: "0px 10px" }}>
 						<input type={"range"}
 							value={frame} onChange={toggleFrame}
@@ -1422,6 +1449,8 @@ function ResultPane(props) {
 	const [tabPaneInd, setTabPaneInd] = useState(0);
 	// #endregion
 
+	const { resultFlag } = props;
+
 	const contextHook = useContext(Context);
 	const contextObj = {
 		loading: contextHook[0],
@@ -1452,7 +1481,7 @@ function ResultPane(props) {
 			{/* Tab Header */}
 			<ResultTabHeader ind={tabPaneInd} setInd={setTabPaneInd} />
 
-			<ResultTabPane indKey={init.tabLs[tabPaneInd]} {...contextObj} />
+			<ResultTabPane indKey={init.tabLs[tabPaneInd]} {...contextObj} key={resultFlag} />
 		</div>
 	);
 }
@@ -1487,7 +1516,7 @@ function Index(props) {
 				(resultFlag) ? (
 					<>
 						<WqScrollFabBtn />
-						<ResultPane />
+						<ResultPane resultFlag={resultFlag} />
 					</>
 				) : (
 					<></>
