@@ -169,7 +169,14 @@ function StationInput(props) {
 
     const toggleStationForm = (e) => {
         const { name, value } = e.target;
-        toggleStation(name, value);
+
+        let val = value;
+
+        if (Utility.isNumeric(val)) {
+            val = +val;
+        }
+
+        toggleStation(name, val);
     }
     // #endregion
 
