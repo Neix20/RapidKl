@@ -7,7 +7,7 @@ import { googleApiKey, Images, SampleData, SampleDirection, SampleDirectionRes }
 import "@config/globalStyles.css";
 
 import { fetchGeoCode, fetchSimulation } from "@api";
-import { WqScrollFabBtn, WqModalBtn, WqLoading, WqLoadingModal } from "@components";
+import { WqScrollFabBtn, WqModalBtn, WqLoading, WqLoadingModal, WcChart } from "@components";
 
 import { useToggle } from "@hooks";
 
@@ -68,14 +68,14 @@ function useBus(value = []) {
 		const start_ts = Math.max(min_ts, 0);
 
 		item["starting_time"] = start_ts;
-		
+
 		if (start_ts == 0) {
 			item["time_iso"] = "06:00"
 		}
 
 		let arr = [...busLs];
 		arr[pos] = item;
-		
+
 		setBusLs(arr);
 	}
 
@@ -1049,6 +1049,7 @@ function ControlPane(props) {
 			onSetLoading: setLoading,
 		})
 			.then(data => {
+
 				// Data
 				setResData(data);
 
@@ -1414,15 +1415,17 @@ function ResultExpense(props) {
 	)
 }
 
+const labelLs = Utility.genTsLabelArr();
+
 function ResultTabPane(props) {
 
 	// #region Props
 	const { indKey = "" } = props;
+	const { resDirection, resData } = props;
 	// #endregion
 
+	// #region Use Hook
 	const [play, setPlay, togglePlay] = useToggle(false);
-
-	const { resDirection, resData } = props;
 
 	const mapHook = useMap();
 	const mapObj = {
@@ -1433,11 +1436,13 @@ function ResultTabPane(props) {
 	}
 
 	const [frame, setFrame] = useState(0);
-	const [duration, setDuration] = useState(5);
 
+	const duration = 5;
 	const maxFrame = 1050;
 	const time_per_frame = 1000 * 60 * duration / maxFrame;
+	// #endregion
 
+	// #region Use Effect
 	useEffect(() => {
 		onReset();
 	}, [indKey]);
@@ -1450,13 +1455,16 @@ function ResultTabPane(props) {
 		}, time_per_frame);
 		return () => clearInterval(interval);
 	}, [play]);
+	// #endregion
 
+	// #region Helper
 	const toggleFrame = (e) => {
 		const { value } = e.target;
 		setFrame(+value);
 	}
 
 	const onReset = () => setFrame(0);
+	// #endregion
 
 	return (
 		<div className="w-100 h-100" style={{ display: "flex" }}>
@@ -1490,20 +1498,41 @@ function ResultTabPane(props) {
 					</div>
 				</div>
 			</div>
-			<div className="w-100 h-100" style={{ flex: .8, backgroundColor: "#F00" }}>
-				{
-					(resData[indKey]["station_list"].length > 0) ? (
-						<MapRes
-							frame={frame}
-							direction={resDirection}
-							iCoord={resData[indKey]["station_list"][0][0]}
-							stationLs={resData[indKey]["station_list"]}
-							busLs={resData[indKey]["buses_list"]}
-							{...mapObj} />
-					) : (
-						<></>
-					)
-				}
+			<div className="w-100 h-100" style={{ flex: .8, display: "flex" }}>
+				<div className="w-100">
+					{
+						(resData[indKey]["station_list"].length > 0) ? (
+							<MapRes
+								frame={frame}
+								direction={resDirection}
+								iCoord={resData[indKey]["station_list"][0][0]}
+								stationLs={resData[indKey]["station_list"]}
+								busLs={resData[indKey]["buses_list"]}
+								{...mapObj} />
+						) : (
+							<></>
+						)
+					}
+				</div>
+				<div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 10, width: 700 }}>
+					<div className={"w-100 h-100"}>
+						<WcChart title={"Passenger Transported"} frameInd={frame}
+						min={0} max={resData[indKey]["pass_transported"]["max"]}
+							labelLs={labelLs} dataLs={resData[indKey]["pass_transported"]["data"]} />
+					</div>
+
+					<div className={"w-100 h-100"}>
+						<WcChart title={"Total Distance Travelled"} frameInd={frame}
+						min={0} max={resData[indKey]["dist_travelled"]["max"]}
+							labelLs={labelLs} dataLs={resData[indKey]["dist_travelled"]["data"]} />
+					</div>
+
+					<div className={"w-100 h-100"}>
+						<WcChart title={"Occupants Per Bus Efficiency"} frameInd={frame}
+						min={0} max={1}
+							labelLs={labelLs} dataLs={resData[indKey]["route_efficiency"]["data"]} />
+					</div>
+				</div>
 			</div>
 		</div>
 	);

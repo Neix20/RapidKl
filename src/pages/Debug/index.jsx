@@ -6,75 +6,13 @@ import { fetchGeoCode, fetchTest } from "@api";
 
 import { useToggle } from "@hooks";
 
-import { WqLoadingModal, WqModalBtn } from "@components";
+import { WqLoadingModal, WqModalBtn, WcChart } from "@components";
 
-function PlayBtn(props) {
-	const { flag = false, onClick = () => { } } = props;
+import "@config/globalStyles.css";
 
-	if (flag) {
-		return (
-			<div onClick={onClick}
-				className="btn btn-warning g_center"
-				style={{ columnGap: 10 }}
-			>
-				<div className={"fs-2 fw-bold"}>Pause</div>
-			</div>
-		)
-	}
+import { faker } from '@faker-js/faker';
 
-	return (
-		<div onClick={onClick}
-			className="btn btn-success g_center"
-			style={{ columnGap: 10 }}
-		>
-			<div className={"fs-2 fw-bold"}>Play</div>
-		</div>
-	)
-}
-
-function BusAnime(props) {
-	const init = {
-		active: "https://neix.s3.amazonaws.com/bus_color.png",
-		inActive: "https://neix.s3.amazonaws.com/wqRklBus.png"
-	}
-
-	const { stateFlag = true } = props;
-
-	const [frame, setFrame] = useState(0);
-
-	useEffect(() => {
-		const interval = setInterval(() => {
-			if (stateFlag) {
-				setFrame(() => frame + 1);
-			}
-		}, 1000);
-		return () => clearInterval(interval);
-	}, []);
-
-	if (stateFlag) {
-		return (
-			<img
-				src={(active) ? init.active : init.inActive}
-				style={{
-					width: 100,
-					height: 100
-				}}
-				alt={"Bus"} />
-		)
-	}
-
-	return (
-		<img
-			src={init.active}
-			style={{
-				width: 100,
-				height: 100
-			}}
-			alt={"Bus"} />
-	)
-
-
-}
+const labels = Utility.genTsLabelArr();
 
 function Index(props) {
 
@@ -83,23 +21,63 @@ function Index(props) {
 		inActive: "https://neix.s3.amazonaws.com/wqRklBus.png"
 	}
 
-	const [active, setInactive, toggleActive] = useToggle(false);
+	const [play, setPlay, togglePlay] = useToggle(false);
+
+	const [frame, setFrame] = useState(1050);
+	
+	const duration = 5;
+	const maxFrame = 1050;
+	const time_per_frame = 1000 * 60 * duration / maxFrame;
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			if (play) {
+				setFrame(frame => (frame + 1) % maxFrame);
+			}
+		}, time_per_frame);
+		return () => clearInterval(interval);
+	}, [play]);
+
+	const dataLs = [
+		{
+			label: "Dataset 3",
+			data: labels.map(() => faker.datatype.number({ min: 0, max: 1000 }))
+		},
+		{
+			label: "Dataset 3",
+			data: labels.map(() => faker.datatype.number({ min: 0, max: 1000 }))
+		}
+	]
 
 	return (
 		<>
 			{/* <WqLoadingModal loading={loading} /> */}
-			<div
-				style={{
-					backgroundColor: "#00F",
-					height: 100,
-					width: 100,
-				}}
-			></div>
-
-			<div><input type={"time"} /></div>
-
-			<PlayBtn flag={active} onClick={toggleActive} />
-			<BusAnime stateFlag={active} />
+			<div onClick={togglePlay} className="btn btn-primary" >Gay</div> 
+			<div>{play ? "Active" : "Not Active"}</div>
+			<div style={{ backgroundColor: "#00F", display: "flex" }}>
+				<div className={"g_center"}
+					style={{
+						flex: 1,
+						backgroundColor: "#FFF"
+					}}>
+					<WcChart title={"Chart Js"} frameInd={frame} 
+					labelLs={labels} dataLs={dataLs} />
+				</div>
+				<div className={"g_center"}
+					style={{
+						flex: 1,
+						backgroundColor: "#FFF"
+					}}>
+					<WcChart frameInd={frame} labelLs={labels} dataLs={dataLs} />
+				</div>
+				<div className={"g_center"}
+					style={{
+						flex: 1,
+						backgroundColor: "#FFF"
+					}}>
+					<WcChart frameInd={frame} labelLs={labels} dataLs={dataLs} />
+				</div>
+			</div>
 		</>
 	);
 }

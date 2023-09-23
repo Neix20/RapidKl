@@ -42,7 +42,7 @@ function Index(props) {
 						borderRadius: 20,
 					}}
 				>
-					<i class="fa-solid fa-down-long"></i>
+					<i className="fa-solid fa-down-long"></i>
 				</div>
 			) : (
 				<div
@@ -55,7 +55,7 @@ function Index(props) {
 						borderRadius: 20,
 					}}
 				>
-					<i class="fa-solid fa-up-long"></i>
+					<i className="fa-solid fa-up-long"></i>
 				</div>
 			)}
 		</div>

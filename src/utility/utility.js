@@ -74,6 +74,17 @@ function genHourDict(startHr, endHr) {
     return dict;
 }
 
+function genTsLabelArr() {
+    let res = [];
+
+    for (let ind = 0; ind < 1051; ind += 1) {
+        const ts = DateTime.fromObject({ hour: 6 + Math.floor(ind / 60), minute: ind % 60 }).toFormat("HH:mm");
+        res.push(ts);
+    }
+
+    return res;
+}
+
 function genRideZone() {
     let arr = [];
 
@@ -129,6 +140,18 @@ function isNumeric(str) {
         !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
 }
 
+function genRandomInt(min, max) {
+    const res = min + Math.floor(Math.random() * (max - min + 1));
+    return res;
+}
+
+function genRandomRgb(opacity) {
+    const r = genRandomInt(0, 255);
+    const b = genRandomInt(0, 255);
+    const g = genRandomInt(0, 255);
+    return [`rgb(${r},${g},${b})`, `rgb(${r},${g},${b}, ${opacity})`]
+}
+
 export {
     genLogUrl,
     genServerUrl,
@@ -146,6 +169,12 @@ export {
     genHourArr,
     genHourIsoArr,
     genHourDict,
+    genTsLabelArr,
+};
+
+export { 
     roundDown,
     isNumeric,
-};
+    genRandomInt,
+    genRandomRgb
+}

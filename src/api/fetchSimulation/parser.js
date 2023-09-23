@@ -126,6 +126,18 @@ function getRealTimeData(midJourneyCalculationsArr, logsArr, timestamp) {
     output['station_state'] = []
     output['buses_states'] = []
 
+    const graph_data = "graph_data"
+    output[graph_data] = {
+        "pass_transported": {
+            "global": 0,
+        },
+        "dist_travelled": {
+            "global": 0,
+        },
+        "route_efficiency": {
+        }
+    }
+
     for (let i = 0; i < releventRows[0].stations_state.length; i += 1) {
         const station = releventRows[0].stations_state[i];
         output['station_state'].push({
@@ -171,6 +183,7 @@ function getRealTimeData(midJourneyCalculationsArr, logsArr, timestamp) {
         let percentageProgress = currentStateEndTime == 0 ? 0.0 :
             ((timestamp - currentStateStartTime) / (currentStateEndTime - currentStateStartTime));
 
+        const total_distance_travelled = bus.results.distance_travelled + bus.current_state.travelling_distance * percentageProgress;
         let newBusState = {
             'name': bus.name,
             'current_occupants': bus.current_occupants,
@@ -184,10 +197,17 @@ function getRealTimeData(midJourneyCalculationsArr, logsArr, timestamp) {
             //If current_state is moving, this float is how far down the path that it is actually travelling
             'progress': percentageProgress,
 
-            'total_distance_travelled': bus.results.distance_travelled
-                + bus.current_state.travelling_distance * percentageProgress,
+            'total_distance_travelled': total_distance_travelled,
             'total_passangers_transported': bus.results.transported,
         }
+
+        output[graph_data]['dist_travelled'][bus.name] = total_distance_travelled 
+        output[graph_data]['dist_travelled']["global"] += total_distance_travelled
+
+        output[graph_data]['route_efficiency'][bus.name] =  bus.current_occupants / bus.max_occupants 
+
+        output[graph_data]['pass_transported'][bus.name] = bus.results.transported 
+        output[graph_data]['pass_transported'].global += bus.results.transported
 
         if (newBusState['current_state'] == 'RESTING') {
             //At Station
@@ -219,6 +239,23 @@ function getRealTimeData(midJourneyCalculationsArr, logsArr, timestamp) {
         }
 
         output['buses_states'].push(newBusState)
+    }
+
+    
+    const route_effi_map = output[graph_data]['route_efficiency']
+    if (route_effi_map.length > 0)
+    {
+        let total = 0;
+        let count = 0;
+        for (const [key, value] of Object.entries(route_effi_map)) {
+            total += value
+            count += 1
+        }
+        route_effi_map['global'] = total / count;
+    }
+    else
+    {
+        route_effi_map['global'] = 0;
     }
 
     return output;

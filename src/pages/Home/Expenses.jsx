@@ -198,7 +198,7 @@ function Index(props) {
                     className="btn btn-warning w-100 h-100 g_center"
                     style={{ columnGap: 10 }}>
                     <div className={"fs-2 fw-bold"}>
-                        Operation Detail
+                        Operational Costs
                     </div>
                     <i className="fa-solid fa-money-bill fa-lg"></i>
                 </div>
@@ -207,7 +207,7 @@ function Index(props) {
                 <div className={"w-100 h-100"}>
                     <div className={"g_center"} style={{ height: "10%" }}>
                         <div className={"fs-2 fw-bold"}>
-                            Operation Detail
+                            Operational Costs
                         </div>
                     </div>
                     <div className={"w-100 g_center"} style={{ height: "90%" }}>
