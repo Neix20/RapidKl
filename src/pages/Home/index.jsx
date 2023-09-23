@@ -7,7 +7,7 @@ import { googleApiKey, Images, SampleData, SampleDirection, SampleDirectionRes }
 import "@config/globalStyles.css";
 
 import { fetchGeoCode, fetchSimulation } from "@api";
-import { WqScrollFabBtn, WqModalBtn, WqLoading, WqLoadingModal, WcChart } from "@components";
+import { WqScrollFabBtn, WqModalBtn, WqLoading, WqLoadingModal, WqChart } from "@components";
 
 import { useToggle } from "@hooks";
 
@@ -1516,19 +1516,19 @@ function ResultTabPane(props) {
 				</div>
 				<div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 10, width: 700 }}>
 					<div className={"w-100 h-100"}>
-						<WcChart title={"Passenger Transported"} frameInd={frame}
+						<WqChart title={"Passenger Transported"} frameInd={frame}
 						min={0} max={resData[indKey]["pass_transported"]["max"]}
 							labelLs={labelLs} dataLs={resData[indKey]["pass_transported"]["data"]} />
 					</div>
 
 					<div className={"w-100 h-100"}>
-						<WcChart title={"Total Distance Travelled"} frameInd={frame}
+						<WqChart title={"Total Distance Travelled"} frameInd={frame}
 						min={0} max={resData[indKey]["dist_travelled"]["max"]}
 							labelLs={labelLs} dataLs={resData[indKey]["dist_travelled"]["data"]} />
 					</div>
 
 					<div className={"w-100 h-100"}>
-						<WcChart title={"Occupants Per Bus Efficiency"} frameInd={frame}
+						<WqChart title={"Occupants Per Bus Efficiency"} frameInd={frame}
 						min={0} max={1}
 							labelLs={labelLs} dataLs={resData[indKey]["route_efficiency"]["data"]} />
 					</div>

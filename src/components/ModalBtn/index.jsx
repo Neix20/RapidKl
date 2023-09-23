@@ -58,8 +58,7 @@ function Index(props) {
 			) : (
 				<></>
 			)}
-			<div className={`w-100 h-100`}
-				onClick={toggleModal}>{btnChild}</div>
+			<div className={`w-100 h-100`} onClick={toggleModal}>{btnChild}</div>
 		</>
 	);
 

@@ -5,7 +5,7 @@ import WqModalBtn from "./ModalBtn";
 import WqLoading from "./LoadingModal/Loading";
 import WqLoadingModal from "./LoadingModal";
 
-import WcChart from "./Chart";
+import WqChart from "./Chart";
 
 export {
     WqRouteNavigator,
@@ -13,5 +13,5 @@ export {
     WqModalBtn,
     WqLoading,
     WqLoadingModal,
-    WcChart
+    WqChart
 }

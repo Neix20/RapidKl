@@ -12,8 +12,6 @@ import {
     TimeScale
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import { Utility } from "@utility";
-
 import 'chartjs-adapter-luxon';
 
 ChartJS.register(
@@ -22,13 +20,48 @@ ChartJS.register(
     Title, Tooltip, Filler, Legend
 );
 
+import "@config/globalStyles.css";
+
+import { useToggle } from "@hooks";
+import { WqModalBtn } from "@components";
+
+function ModalBtn(props) {
+    const modalHook = useToggle(false);
+    const modalObj = {
+        showModal: modalHook[0],
+        setShowModal: modalHook[1],
+        toggleModal: modalHook[2]
+    }
+
+    return (
+        <WqModalBtn
+            {...modalObj}
+            btnChild={<></>}
+            mdlChild={<></>}
+        />
+    )
+}
+
+import { Utility } from "@utility";
+
 function Index(props) {
 
+    // #region Props
     const { title = "", frameInd = 100 } = props;
     const { min = 0, max = 100 } = props;
     const { labelLs = [], dataLs = [] } = props;
+    // #endregion
 
+    // #region Use State
     const [colorLs, setColorLs] = useState([]);
+
+    const modalHook = useToggle(false);
+    const modalObj = {
+        showModal: modalHook[0],
+        setShowModal: modalHook[1],
+        toggleModal: modalHook[2]
+    }
+    // #endregion
 
     useEffect(() => {
         let arr = [];
@@ -76,7 +109,7 @@ function Index(props) {
         },
         datasets: {
             line: {
-                pointRadius: 0 // disable for all `'line'` datasets
+                // pointRadius: 0 // disable for all `'line'` datasets
             },
             spanGaps: true,
         }
@@ -96,7 +129,15 @@ function Index(props) {
     };
 
     return (
-        <Line options={options} data={data} />
+        <WqModalBtn
+            {...modalObj}
+            btnChild={
+                <div className='btn btn-light w-100 h-100'>
+                    <Line options={options} data={data} />
+                </div>
+            }
+            mdlChild={<Line options={options} data={data} />}
+        />
     )
 }
 

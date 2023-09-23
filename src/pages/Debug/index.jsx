@@ -5,8 +5,7 @@ import { Logger, Utility } from "@utility";
 import { fetchGeoCode, fetchTest } from "@api";
 
 import { useToggle } from "@hooks";
-
-import { WqLoadingModal, WqModalBtn, WcChart } from "@components";
+import { WqLoadingModal, WqModalBtn, WqChart } from "@components";
 
 import "@config/globalStyles.css";
 
@@ -24,7 +23,7 @@ function Index(props) {
 	const [play, setPlay, togglePlay] = useToggle(false);
 
 	const [frame, setFrame] = useState(1050);
-	
+
 	const duration = 5;
 	const maxFrame = 1050;
 	const time_per_frame = 1000 * 60 * duration / maxFrame;
@@ -52,7 +51,7 @@ function Index(props) {
 	return (
 		<>
 			{/* <WqLoadingModal loading={loading} /> */}
-			<div onClick={togglePlay} className="btn btn-primary" >Gay</div> 
+			<div onClick={togglePlay} className="btn btn-primary" >Gay</div>
 			<div>{play ? "Active" : "Not Active"}</div>
 			<div style={{ backgroundColor: "#00F", display: "flex" }}>
 				<div className={"g_center"}
@@ -60,22 +59,22 @@ function Index(props) {
 						flex: 1,
 						backgroundColor: "#FFF"
 					}}>
-					<WcChart title={"Chart Js"} frameInd={frame} 
-					labelLs={labels} dataLs={dataLs} />
+					<WqChart title={"Chart Js"} frameInd={frame}
+						labelLs={labels} dataLs={dataLs} />
 				</div>
 				<div className={"g_center"}
 					style={{
 						flex: 1,
 						backgroundColor: "#FFF"
 					}}>
-					<WcChart frameInd={frame} labelLs={labels} dataLs={dataLs} />
+					<WqChart frameInd={frame} labelLs={labels} dataLs={dataLs} />
 				</div>
 				<div className={"g_center"}
 					style={{
 						flex: 1,
 						backgroundColor: "#FFF"
 					}}>
-					<WcChart frameInd={frame} labelLs={labels} dataLs={dataLs} />
+					<WqChart frameInd={frame} labelLs={labels} dataLs={dataLs} />
 				</div>
 			</div>
 		</>
