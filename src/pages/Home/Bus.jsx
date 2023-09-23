@@ -74,7 +74,14 @@ function BusNodeInput(props) {
     const toggleBus = (e) => {
         const { name: tName, value } = e.target;
         let obj = { ...bus };
-        obj[tName] = value;
+
+        let val = value;
+
+        if (Utility.isNumeric(val)) {
+            val = +val;
+        }
+
+        obj[tName] = val;
         UpdateBus(obj);
     }
 
@@ -85,8 +92,6 @@ function BusNodeInput(props) {
 
     const onMapShow = () => {
         toggleModal();
-
-        console.log(bus)
         onMarkerZoom(bus);
     }
 

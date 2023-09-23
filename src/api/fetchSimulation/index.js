@@ -42,13 +42,16 @@ const Index = async (props) => {
 
         for (let key in res) {
             let val = res[key];
-            res[key] = Math.round(val  * 100) / 100;
+            res[key] = Math.round(val * 100) / 100;
         }
 
         let station_ls = [];
         let buses_ls = [];
         for (let ind = 0; ind < 1051; ind += 1) {
-            const { station_state, buses_states } = getRealTimeData(midJourneyCalculationsArr, logs, ind);
+
+            const rtData = getRealTimeData(midJourneyCalculationsArr, logs, ind);
+
+            const { station_state, buses_states } = rtData;
 
             let station_arr = [...station_state];
 

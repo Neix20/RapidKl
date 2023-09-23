@@ -58,18 +58,24 @@ function useBus(value = []) {
 	}
 
 	const UpdateBus = (item) => {
-		const { pos, time_iso, max_occupants } = item;
+		const { pos, time_iso, fuel_consumption_per_km } = item;
 
 		const dt = DateTime.fromISO(`2023-08-18T${time_iso}:00`);
+		const minDt = DateTime.fromISO(`2023-08-18T06:00:00`);
 
-		const minDt = DateTime.fromISO(`2023-08-18T00:00:00`);
+		const { hours, minutes } = dt.diff(minDt, ["hours", "minutes"]).toObject();
+		const min_ts = hours * 60 + minutes;
+		const start_ts = Math.max(min_ts, 0);
 
-		const { minutes } = dt.diff(minDt, 'minutes').toObject();
+		item["starting_time"] = start_ts;
+		
+		if (start_ts == 0) {
+			item["time_iso"] = "06:00"
+		}
 
 		let arr = [...busLs];
 		arr[pos] = item;
-		arr["starting_time"] = minutes;
-		arr["max_occupants"] = Math.floor(max_occupants);
+		
 		setBusLs(arr);
 	}
 
@@ -249,7 +255,9 @@ function useDirection(value = null) {
 
 					let arr = [...stationLs];
 
-					const est_arr = legs.map((obj, ind) => {
+					for (let ind in legs) {
+						const obj = legs[ind];
+
 						const { distance: { value: dist }, duration: { value: ts } } = obj;
 						const min = Math.floor(ts / 60);
 
@@ -262,9 +270,7 @@ function useDirection(value = null) {
 							...arr[ind],
 							...rObj
 						}
-
-						return rObj;
-					});
+					}
 
 					resolve([arr, result]);
 				} else {
@@ -295,9 +301,11 @@ function useMap() {
 // #region Map Icons
 function StationHubMarker(props) {
 
-	const { onClick = () => { }, name, initial = false } = props;
+	const { onClick = () => { }, initial = false } = props;
 
 	const [showModal, setShowModal, toggleModal] = useToggle(initial);
+
+	const { name, lat, lng } = props;
 
 	const cusClick = () => {
 		onClick();
@@ -309,7 +317,22 @@ function StationHubMarker(props) {
 			onClick={cusClick}>
 			{
 				(showModal) ? (
-					<InfoWindow><span>{name}</span></InfoWindow>
+					<InfoWindow onCloseClick={toggleModal}>
+						<div style={{ display: "flex", flexDirection: "column", width: 300 }}>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Name</div>
+								<div>{name}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Latitude</div>
+								<div>{lat}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Longitude</div>
+								<div>{lng}</div>
+							</div>
+						</div>
+					</InfoWindow>
 				) : (
 					<></>
 				)
@@ -320,7 +343,11 @@ function StationHubMarker(props) {
 
 function StationMarker(props) {
 
-	const { onClick = () => { }, name, initial = false } = props;
+
+
+	const { onClick = () => { }, initial = false } = props;
+
+	const { name, lat, lng } = props;
 
 	const [showModal, setShowModal, toggleModal] = useToggle(initial);
 
@@ -334,7 +361,22 @@ function StationMarker(props) {
 			onClick={cusClick}>
 			{
 				(showModal) ? (
-					<InfoWindow><span>{name}</span></InfoWindow>
+					<InfoWindow onCloseClick={toggleModal}>
+						<div style={{ display: "flex", flexDirection: "column", width: 300 }}>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Name</div>
+								<div>{name}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Latitude</div>
+								<div>{lat}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Longitude</div>
+								<div>{lng}</div>
+							</div>
+						</div>
+					</InfoWindow>
 				) : (
 					<></>
 				)
@@ -345,7 +387,9 @@ function StationMarker(props) {
 
 function BusColorMarker(props) {
 
-	const { onClick = () => { }, name, initial = false } = props;
+	const { onClick = () => { }, initial = false } = props;
+
+	const { name, lat, lng } = props;
 
 	const [showModal, setShowModal, toggleModal] = useToggle(initial);
 
@@ -359,7 +403,22 @@ function BusColorMarker(props) {
 			onClick={cusClick}>
 			{
 				(showModal) ? (
-					<InfoWindow><span>{name}</span></InfoWindow>
+					<InfoWindow onCloseClick={toggleModal}>
+						<div style={{ display: "flex", flexDirection: "column", width: 300 }}>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Name</div>
+								<div>{name}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Latitude</div>
+								<div>{lat}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Longitude</div>
+								<div>{lng}</div>
+							</div>
+						</div>
+					</InfoWindow>
 				) : (
 					<></>
 				)
@@ -387,7 +446,7 @@ function StationHubResMarker(props) {
 			onClick={cusClick}>
 			{
 				(showModal) ? (
-					<InfoWindow>
+					<InfoWindow onCloseClick={toggleModal}>
 						<div style={{ display: "flex", flexDirection: "column", width: 400 }}>
 							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 								<div>Name</div>
@@ -395,15 +454,15 @@ function StationHubResMarker(props) {
 							</div>
 							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 								<div>People Waiting</div>
-								<div>{people_waiting}</div>
+								<div className={"fw-bold"} >{people_waiting}</div>
 							</div>
 							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 								<div>Total Inbound</div>
-								<div>{inbound}</div>
+								<div className={"fw-bold"} >{inbound}</div>
 							</div>
 							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 								<div>Total Outbound</div>
-								<div>{outbound}</div>
+								<div className={"fw-bold"} >{outbound}</div>
 							</div>
 							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 								<div>Latitude</div>
@@ -440,7 +499,7 @@ function StationResMarker(props) {
 			onClick={cusClick}>
 			{
 				(showModal) ? (
-					<InfoWindow>
+					<InfoWindow onCloseClick={toggleModal}>
 						<div style={{ display: "flex", flexDirection: "column", width: 400 }}>
 							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 								<div>Name</div>
@@ -448,15 +507,15 @@ function StationResMarker(props) {
 							</div>
 							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 								<div>People Waiting</div>
-								<div>{people_waiting}</div>
+								<div className={"fw-bold"} >{people_waiting}</div>
 							</div>
 							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 								<div>Total Inbound</div>
-								<div>{inbound}</div>
+								<div className={"fw-bold"} >{inbound}</div>
 							</div>
 							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 								<div>Total Outbound</div>
-								<div>{outbound}</div>
+								<div className={"fw-bold"} >{outbound}</div>
 							</div>
 							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 								<div>Latitude</div>
@@ -478,7 +537,7 @@ function StationResMarker(props) {
 
 function BusColorResMarker(props) {
 
-	const { onClick = () => { }, initial = false } = props;
+	const { onClick = () => { }, initial = false, stationLs = [] } = props;
 	const { name, current_occupants, current_state, destination, progress, total_distance_travelled, total_passangers_transported, lat, lng } = props;
 
 	const [showModal, setShowModal, toggleModal] = useToggle(initial);
@@ -489,35 +548,34 @@ function BusColorResMarker(props) {
 	}
 
 	return (
-		<Marker icon={"https://neix.s3.amazonaws.com/bus_color.png"} {...props}
-			onClick={cusClick}>
+		<Marker icon={"https://neix.s3.amazonaws.com/bus_color.png"} {...props} onClick={cusClick}>
 			{
 				(showModal) ? (
-					<InfoWindow>
+					<InfoWindow onCloseClick={toggleModal}>
 						<div style={{ display: "flex", flexDirection: "column", width: 400 }}>
 							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 								<div>Name</div>
 								<div>{name}</div>
 							</div>
 							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-								<div>Current Occupants</div>
-								<div>{current_occupants}</div>
-							</div>
-							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 								<div>State</div>
-								<div>{current_state}</div>
+								<div className="fw-bold">{current_state}</div>
 							</div>
 							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 								<div>Destination Station</div>
-								<div>{destination}</div>
+								<div className="fw-bold">{stationLs[destination]}</div>
 							</div>
 							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 								<div>Total Distance</div>
-								<div>{total_distance_travelled}</div>
+								<div className="fw-bold">{total_distance_travelled}</div>
+							</div>
+							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+								<div>Current Occupants</div>
+								<div className="fw-bold">{current_occupants}</div>
 							</div>
 							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 								<div>Total Passengers</div>
-								<div>{total_passangers_transported}</div>
+								<div className="fw-bold">{total_passangers_transported}</div>
 							</div>
 							<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 								<div>Latitude</div>
@@ -882,7 +940,7 @@ function ControlPane(props) {
 	const [loading, setLoading, setResultFlag, toggleResultFlag, resDirection, setResDirection, resData, setResData] = useContext(Context);
 	const [coords, setCoords] = useState(init.coord);
 
-	const { stationLs, setStationLs } = stationObj;
+	const { stationLs, setStationLs, AddStation } = stationObj;
 	const { direction, setDirection, GenRoute } = directionObj;
 	const { busLs, setBusLs, AddBus } = busObj;
 	const { expense, setExpense } = expenseObj;
@@ -979,8 +1037,6 @@ function ControlPane(props) {
 
 		station_arr = [...hub_arr, ...not_hub_arr];
 
-		console.log(station_arr, stationLs);
-
 		final["data"]["stations_info"] = station_arr;
 		final["data"]["buses_info"] = busLs;
 		final["data"]["other_panel_info"] = expense;
@@ -993,12 +1049,6 @@ function ControlPane(props) {
 			onSetLoading: setLoading,
 		})
 			.then(data => {
-
-				Logger.info({
-					content: data,
-					fileName: "Final_Res"
-				})
-
 				// Data
 				setResData(data);
 
@@ -1020,6 +1070,12 @@ function ControlPane(props) {
 				setLoading(false);
 				console.log(`Error: ${err}`)
 			})
+
+	}
+
+	const onSearchAddMarker = () => {
+		const { lat, lng } = coords;
+		AddStation(lat, lng);
 
 	}
 	// #endregion
@@ -1081,7 +1137,7 @@ function ControlPane(props) {
 							<i className="fa-solid fa-rotate-left fa-lg"></i>
 						</div>
 						<StartBtn onClick={onStart} flag={stationLs.length > 1} />
-						<SubmitBtn onClick={onSubmit} flag={stationLs.length > 1 & busLs.length > 1 && direction != null} />
+						<SubmitBtn onClick={onSubmit} flag={stationLs.length > 1 & busLs.length >= 1 && direction != null} />
 					</div>
 
 					{/* Map */}
@@ -1089,8 +1145,15 @@ function ControlPane(props) {
 						className={"w-100 h-100"}
 						style={{ display: "flex", flexDirection: "column", rowGap: 10 }}
 					>
-						<div style={{ width: "100%", height: "10%" }}>
-							<Search searchQuery={searchQuery} />
+						<div style={{ width: "100%", height: "10%", display: "flex" }}>
+							<div style={{ flex: .9 }}>
+								<Search searchQuery={searchQuery} />
+							</div>
+							<div onClick={onSearchAddMarker}
+								className="btn btn-success g_center"
+								style={{ flex: .1, margin: "0px 10px" }}>
+								<i className="fa-solid fa-plus fa-xl"></i>
+							</div>
 						</div>
 						<div className={"w-100 h-100"}>
 							<Map
@@ -1159,6 +1222,8 @@ function MapRes(props) {
 		)
 	}
 
+	const stationNameLs = stationLs[frame].map(x => x.name);
+
 	const renderBus = (item, index) => {
 		const onClick = () => onMarkerZoom(item);
 
@@ -1166,6 +1231,7 @@ function MapRes(props) {
 			<BusColorResMarker key={index}
 				onClick={onClick}
 				position={item}
+				stationLs={stationNameLs}
 				{...item}
 			/>
 		)
@@ -1401,7 +1467,7 @@ function ResultTabPane(props) {
 					</div>
 					<div style={{ display: "flex", columnGap: 10 }}>
 						<PlayBtn flag={play} onClick={togglePlay} />
-						<div onClick={onReset} 
+						<div onClick={onReset}
 							className={"btn btn-danger fw-bold fs-2"}>
 							Reset
 						</div>
